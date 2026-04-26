@@ -33,6 +33,10 @@ app.get('/water-quality', (req, res) => {
   app.get('/history', (req, res) => {
     res.render('history');
   });
+
+  app.get('/reports', (req, res) => {
+    res.render('reports');
+  });
 app.use(express.urlencoded({ extended: true })); // parse form data
 
 app.post('/login', (req, res) => {

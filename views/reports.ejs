@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E-Tubig | Reports</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    .main::-webkit-scrollbar,
+    .content::-webkit-scrollbar,
+    .sidebar::-webkit-scrollbar { display: none; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 210px;
+      min-height: 100vh;
+      background: #fff;
+      border-right: 1px solid #e8ecf0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      overflow-y: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 1.3rem 1.4rem;
+      color: #1a8fc1;
+      font-weight: 700;
+      font-size: 16px;
+      border-bottom: 1px solid #f0f4f8;
+    }
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 1.4rem;
+      font-size: 14px;
+      color: #6b7280;
+      text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .nav-item:hover { background: #f0f7fb; color: #1a8fc1; }
+    .nav-item.active {
+      background: #e8f4fb;
+      color: #1a8fc1;
+      font-weight: 600;
+      border-right: 3px solid #1a8fc1;
+    }
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .sidebar-bottom {
+      padding: 1rem 0;
+      border-top: 1px solid #f0f4f8;
+    }
+
+    .main {
+      margin-left: 210px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e8ecf0;
+      padding: .75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-icon {
+      position: relative;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      background: #f4f6f9;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .topbar-icon:hover { background: #e8f4fb; color: #1a8fc1; }
+    .topbar-action { position: relative; }
+    .badge {
+      position: absolute;
+      top: -2px; right: -2px;
+      width: 17px; height: 17px;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      background: #5b5fcf;
+    }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #cbd5e0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: #fff; font-size: 14px;
+      cursor: pointer;
+    }
+    .topbar-popover {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 290px;
+      background: #fff;
+      border: 1px solid #e8ecf0;
+      border-radius: 12px;
+      box-shadow: 0 14px 30px rgba(26, 35, 56, 0.12);
+      padding: .8rem;
+      display: none;
+      z-index: 80;
+    }
+    .topbar-popover.show { display: block; }
+    .popover-title { font-size: 13px; font-weight: 700; margin-bottom: .65rem; }
+    .popover-list { list-style: none; display: flex; flex-direction: column; gap: .45rem; }
+    .popover-item {
+      border: 1px solid #eef2f7;
+      border-radius: 8px;
+      padding: .55rem .65rem;
+      background: #f9fbfd;
+    }
+    .popover-item strong { display: block; font-size: 12px; margin-bottom: 2px; }
+    .popover-item span { font-size: 12px; color: #6b7280; }
+
+    .avatar-panel { width: 250px; }
+    .avatar-head {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      margin-bottom: .65rem;
+      padding-bottom: .65rem;
+      border-bottom: 1px solid #eef2f7;
+    }
+    .avatar-chip {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #1a8fc1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+    }
+    .avatar-meta strong { display: block; font-size: 13px; }
+    .avatar-meta span { font-size: 12px; color: #6b7280; }
+    .avatar-actions { display: flex; flex-direction: column; gap: .35rem; }
+    .avatar-actions a { text-decoration: none; font-size: 12px; color: #1a8fc1; font-weight: 600; }
+
+    .content { padding: 1.6rem 2rem; flex: 1; }
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      gap: 1rem;
+    }
+    .page-title { font-size: 30px; font-weight: 700; }
+    .page-subtitle { font-size: 20px; color: #5f6b7a; }
+
+    .reports-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 1rem;
+    }
+    .card {
+      background: #fff;
+      border: 1.5px solid #c8e6f5;
+      border-radius: 14px;
+      padding: 1rem;
+    }
+    .panel-title { font-size: 14px; font-weight: 700; margin-bottom: .7rem; }
+    .data-list { display: flex; flex-direction: column; gap: .5rem; }
+    .device-picker { position: relative; }
+    .data-pill {
+      border: 1px dashed #93c5e8;
+      background: #f4fbff;
+      border-radius: 8px;
+      padding: .55rem .65rem;
+      font-size: 12px;
+      color: #256a93;
+      cursor: grab;
+      user-select: none;
+    }
+    .device-pill {
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      border-style: solid;
+      cursor: pointer;
+      color: #1d5f87;
+      font-weight: 600;
+    }
+    .device-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #d7dde5;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(26, 35, 56, 0.12);
+      display: none;
+      z-index: 90;
+      overflow: hidden;
+    }
+    .device-menu.show { display: block; }
+    .device-option {
+      width: 100%;
+      border: none;
+      background: #fff;
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #2d3748;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .device-option:hover { background: #f0f7fb; color: #1a8fc1; }
+    .snapshot-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .4rem;
+      margin-bottom: .1rem;
+    }
+    .snapshot-controls input {
+      width: 100%;
+      border: 1px solid #d7dde5;
+      border-radius: 7px;
+      padding: 6px 8px;
+      font-size: 12px;
+      color: #2d3748;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+    }
+    .helper { font-size: 11px; color: #6b7280; margin-top: .65rem; line-height: 1.4; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .75rem;
+      margin-bottom: .75rem;
+    }
+    .field label { display: block; font-size: 11px; color: #718096; margin-bottom: 4px; }
+    .field input, .field select {
+      width: 100%;
+      border: 1px solid #d7dde5;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      border: 1px solid #d7dde5;
+      border-radius: 10px 10px 0 0;
+      border-bottom: none;
+      padding: .55rem;
+      background: #f9fbfd;
+    }
+    .tool-btn {
+      border: 1px solid #d7dde5;
+      background: #fff;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #4a5568;
+    }
+    .editor {
+      min-height: 320px;
+      border: 1px solid #d7dde5;
+      border-radius: 0 0 10px 10px;
+      background: #fff;
+      padding: .9rem;
+      outline: none;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .editor.drop-target { border-color: #1a8fc1; background: #f2faff; }
+
+    .actions {
+      margin-top: .8rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: .55rem;
+    }
+    .btn {
+      border: 1px solid #d7dde5;
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #4a5568;
+      font-weight: 600;
+    }
+    .btn.primary {
+      border-color: #1a8fc1;
+      background: #1a8fc1;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L4 9v11h5v-6h6v6h5V9z" fill="#1a8fc1"/>
+      <polygon points="12,2 20,9 4,9" fill="#29b6d1"/>
+    </svg>
+    E-Tubig
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a href="/monitoring" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Real-Time Monitoring</a>
+    <a href="/water-quality" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/></svg>Water Quality</a>
+    <a href="/consumption" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Consumption</a>
+    <a href="/alerts" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>Alerts</a>
+    <a href="/history" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h18"/><rect x="2" y="3" width="4" height="4" rx="1"/><rect x="2" y="10" width="4" height="4" rx="1"/><rect x="2" y="17" width="4" height="4" rx="1"/></svg>History/Logs</a>
+    <a href="/reports" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg>Reports</a>
+  </nav>
+ 
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-action" data-popover-wrap>
+      <div class="topbar-icon" data-popover-toggle="alerts">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="badge">6</span>
+      </div>
+      <div class="topbar-popover" data-popover-id="alerts">
+        <div class="popover-title">Notifications</div>
+        <ul class="popover-list">
+          <li class="popover-item"><strong>Report Queue</strong><span>2 reports are waiting export.</span></li>
+          <li class="popover-item"><strong>Data Sync</strong><span>Latest sensor data loaded.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="topbar-action" data-popover-wrap>
+      <div class="avatar" data-popover-toggle="admin">A</div>
+      <div class="topbar-popover avatar-panel" data-popover-id="admin">
+        <div class="avatar-head">
+          <div class="avatar-chip">A</div>
+          <div class="avatar-meta"><strong>Admin User</strong><span>admin@etubig.local</span></div>
+        </div>
+        <div class="avatar-actions">
+          <a href="/settings">Account Settings</a>
+          <a href="/reports">View Reports</a>
+          <a href="/logout">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="header-row">
+      <div>
+        <h1 class="page-title">Reports</h1>
+        <p class="page-subtitle">Create analysis reports and export to PDF</p>
+      </div>
+    </div>
+
+    <div class="reports-layout">
+      <div class="card">
+        <div class="panel-title">Data Fields (Drag to Report)</div>
+        <div class="data-list">
+          <div class="device-picker">
+            <button class="data-pill device-pill" id="deviceNamePill" type="button" draggable="true" data-token="">Device Name</button>
+            <div class="device-menu" id="deviceMenu"></div>
+          </div>
+          <div class="snapshot-controls">
+            <input id="snapshotDate" type="date" />
+            <input id="snapshotTime" type="time" />
+          </div>
+          <div class="data-pill" draggable="true" data-field="timestamp" data-token="">Timestamp</div>
+          <div class="data-pill" draggable="true" data-field="ph" data-token="">pH Level</div>
+          <div class="data-pill" draggable="true" data-field="turbidity" data-token="">Turbidity</div>
+          <div class="data-pill" draggable="true" data-field="temperature" data-token="">Temperature</div>
+          <div class="data-pill" draggable="true" data-field="flow" data-token="">Flow Rate</div>
+          <div class="data-pill" draggable="true" data-field="status" data-token="">Status</div>
+          <div class="data-pill" draggable="true" data-field="alerts" data-token="">Alert Summary</div>
+        </div>
+        <p class="helper">Drag any data item into the report editor area. You can format text like in Word using the toolbar on the right.</p>
+      </div>
+
+      <div class="card">
+        <div class="form-grid">
+          <div class="field">
+            <label for="reportTitle">Report Title</label>
+            <input id="reportTitle" type="text" value="Water Quality and Consumption Analysis Report" />
+          </div>
+          <div class="field">
+            <label for="reportType">Report Type</label>
+            <select id="reportType">
+              <option>Daily Summary</option>
+              <option>Weekly Analysis</option>
+              <option>Monthly Compliance</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="reportDate">Report Date</label>
+            <input id="reportDate" type="date" />
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="tool-btn" type="button" data-cmd="bold"><b>B</b></button>
+          <button class="tool-btn" type="button" data-cmd="italic"><i>I</i></button>
+          <button class="tool-btn" type="button" data-cmd="underline"><u>U</u></button>
+          <button class="tool-btn" type="button" data-cmd="insertUnorderedList">• List</button>
+          <button class="tool-btn" type="button" data-cmd="insertOrderedList">1. List</button>
+          <button class="tool-btn" type="button" data-cmd="justifyLeft">Left</button>
+          <button class="tool-btn" type="button" data-cmd="justifyCenter">Center</button>
+          <button class="tool-btn" type="button" data-cmd="justifyRight">Right</button>
+        </div>
+        <div id="reportEditor" class="editor" contenteditable="true">
+          <h3>Executive Summary</h3>
+          <p>Drag data fields from the left side and drop them here to build your report.</p>
+          <p>Current findings indicate stable quality metrics with manageable alert activity.</p>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="clearReportBtn" type="button">Clear</button>
+          <button class="btn primary" id="exportPdfBtn" type="button">Export to PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('reportDate').valueAsDate = new Date();
+
+  const popovers = document.querySelectorAll('[data-popover-id]');
+  const toggles = document.querySelectorAll('[data-popover-toggle]');
+  function closeAllPopovers() { popovers.forEach((p) => p.classList.remove('show')); }
+  toggles.forEach((toggle) => {
+    toggle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const targetPopover = document.querySelector(`[data-popover-id="${toggle.getAttribute('data-popover-toggle')}"]`);
+      const isOpen = targetPopover && targetPopover.classList.contains('show');
+      closeAllPopovers();
+      if (targetPopover && !isOpen) targetPopover.classList.add('show');
+    });
+  });
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('[data-popover-wrap]')) closeAllPopovers();
+  });
+
+  const editor = document.getElementById('reportEditor');
+  const dataPills = document.querySelectorAll('.data-pill');
+  const deviceNamePill = document.getElementById('deviceNamePill');
+  const deviceMenu = document.getElementById('deviceMenu');
+  const snapshotDateInput = document.getElementById('snapshotDate');
+  const snapshotTimeInput = document.getElementById('snapshotTime');
+  const deviceProfiles = {
+    'ESP-32 Main Tank': {
+      history: [
+        { iso: '2026-04-24T08:30', timestamp: 'Apr 24, 08:30 AM', ph: '7.0 pH', turbidity: '2.4 NTU', temperature: '24 C', flow: '47 L/min', status: 'Normal', alerts: '1 Active' },
+        { iso: '2026-04-25T14:20', timestamp: 'Apr 25, 02:20 PM', ph: '7.3 pH', turbidity: '2.0 NTU', temperature: '23 C', flow: '50 L/min', status: 'Normal', alerts: '2 Active' },
+        { iso: '2026-04-26T09:42', timestamp: 'Apr 26, 09:42 AM', ph: '7.2 pH', turbidity: '2.1 NTU', temperature: '23 C', flow: '50 L/min', status: 'Normal', alerts: '2 Active' }
+      ]
+    },
+    'ESP-32 Zone A': {
+      history: [
+        { iso: '2026-04-24T07:45', timestamp: 'Apr 24, 07:45 AM', ph: '7.1 pH', turbidity: '2.8 NTU', temperature: '25 C', flow: '53 L/min', status: 'Warning', alerts: '3 Active' },
+        { iso: '2026-04-25T16:10', timestamp: 'Apr 25, 04:10 PM', ph: '6.9 pH', turbidity: '3.2 NTU', temperature: '26 C', flow: '57 L/min', status: 'Warning', alerts: '4 Active' },
+        { iso: '2026-04-26T09:58', timestamp: 'Apr 26, 09:58 AM', ph: '6.8 pH', turbidity: '3.4 NTU', temperature: '26 C', flow: '58 L/min', status: 'Warning', alerts: '4 Active' }
+      ]
+    },
+    'ESP-8266 Intake': {
+      history: [
+        { iso: '2026-04-24T10:00', timestamp: 'Apr 24, 10:00 AM', ph: '7.6 pH', turbidity: '1.5 NTU', temperature: '22 C', flow: '42 L/min', status: 'Normal', alerts: '1 Active' },
+        { iso: '2026-04-25T11:30', timestamp: 'Apr 25, 11:30 AM', ph: '7.8 pH', turbidity: '1.3 NTU', temperature: '22 C', flow: '43 L/min', status: 'Normal', alerts: '1 Active' },
+        { iso: '2026-04-26T08:15', timestamp: 'Apr 26, 08:15 AM', ph: '7.9 pH', turbidity: '1.2 NTU', temperature: '22 C', flow: '44 L/min', status: 'Normal', alerts: '1 Active' }
+      ]
+    }
+  };
+  let activeDevice = 'ESP-32 Main Tank';
+
+  function formatSelectedTimestamp(dateStr, timeStr) {
+    if (!dateStr || !timeStr) return '';
+    const dt = new Date(`${dateStr}T${timeStr}`);
+    if (Number.isNaN(dt.getTime())) return '';
+    const month = dt.toLocaleString('en-US', { month: 'short' });
+    const day = dt.getDate();
+    const year = dt.getFullYear();
+    const hh = dt.toLocaleString('en-US', { hour: '2-digit', hour12: false });
+    const mm = dt.toLocaleString('en-US', { minute: '2-digit', hour12: false });
+    const period = Number(hh) >= 12 ? 'PM' : 'AM';
+    const hr12 = ((Number(hh) + 11) % 12) + 1;
+    const hrText = hr12 < 10 ? `${hr12}` : `${hr12}`;
+    return `${month} ${day}, ${year} ${hrText}:${mm} ${period}`;
+  }
+
+  function seededValue(seed) {
+    const x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
+  function buildMockSnapshot(deviceName, dateStr, timeStr) {
+    const history = deviceProfiles[deviceName]?.history || [];
+    const fallback = history.length ? history[history.length - 1] : null;
+    if (!fallback) return null;
+    if (!dateStr || !timeStr) return fallback;
+
+    const selectedTs = formatSelectedTimestamp(dateStr, timeStr);
+    const seedBase = new Date(`${dateStr}T${timeStr}`).getTime() / 60000;
+    const deviceSeed = deviceName.length * 31;
+    const s1 = seededValue(seedBase + deviceSeed);
+    const s2 = seededValue(seedBase + deviceSeed + 19);
+    const s3 = seededValue(seedBase + deviceSeed + 47);
+    const s4 = seededValue(seedBase + deviceSeed + 83);
+
+    const basePh = parseFloat(fallback.ph);
+    const baseTurbidity = parseFloat(fallback.turbidity);
+    const baseTemp = parseFloat(fallback.temperature);
+    const baseFlow = parseFloat(fallback.flow);
+
+    const ph = (basePh + (s1 - 0.5) * 0.6).toFixed(1);
+    const turbidity = (baseTurbidity + (s2 - 0.5) * 1.0).toFixed(1);
+    const temp = Math.max(18, Math.round(baseTemp + (s3 - 0.5) * 4));
+    const flow = Math.max(30, Math.round(baseFlow + (s4 - 0.5) * 10));
+    const alertCount = Math.max(0, Math.round((parseFloat(fallback.alerts) || 0) + (s2 - 0.5) * 2));
+
+    return {
+      timestamp: selectedTs,
+      ph: `${ph} pH`,
+      turbidity: `${turbidity} NTU`,
+      temperature: `${temp} C`,
+      flow: `${flow} L/min`,
+      status: parseFloat(turbidity) > 3 || parseFloat(ph) < 6.8 || parseFloat(ph) > 8.2 ? 'Warning' : 'Normal',
+      alerts: `${alertCount} Active`,
+    };
+  }
+
+  function findSnapshot(deviceName) {
+    const selectedDate = snapshotDateInput?.value || '';
+    const selectedTime = snapshotTimeInput?.value || '';
+    return buildMockSnapshot(deviceName, selectedDate, selectedTime);
+  }
+
+  function applyDeviceProfile(deviceName) {
+    const profile = deviceProfiles[deviceName];
+    if (!profile) return;
+    activeDevice = deviceName;
+    const snapshot = findSnapshot(deviceName);
+    if (!snapshot) return;
+
+    if (deviceNamePill) {
+      deviceNamePill.textContent = `Device Name: ${deviceName} ▾`;
+      deviceNamePill.setAttribute('data-token', `Device: ${deviceName}`);
+    }
+
+    document.querySelectorAll('[data-field]').forEach((pill) => {
+      const field = pill.getAttribute('data-field');
+      const value = snapshot[field];
+      if (!value) return;
+      const labels = {
+        timestamp: 'Timestamp',
+        ph: 'pH Level',
+        turbidity: 'Turbidity',
+        temperature: 'Temperature',
+        flow: 'Flow Rate',
+        status: 'Status',
+        alerts: 'Alert Count'
+      };
+      pill.setAttribute('data-token', `${labels[field]}: ${value}`);
+      pill.textContent = `${labels[field]}: ${value}`;
+    });
+  }
+
+  if (deviceMenu) {
+    deviceMenu.innerHTML = Object.keys(deviceProfiles)
+      .map((name) => `<button type="button" class="device-option" data-device="${name}">${name}</button>`)
+      .join('');
+  }
+
+  if (deviceNamePill && deviceMenu) {
+    deviceNamePill.addEventListener('click', () => {
+      deviceMenu.classList.toggle('show');
+    });
+    deviceMenu.addEventListener('click', (event) => {
+      const option = event.target.closest('[data-device]');
+      if (!option) return;
+      applyDeviceProfile(option.getAttribute('data-device'));
+      deviceMenu.classList.remove('show');
+    });
+  }
+
+  if (snapshotDateInput && snapshotTimeInput) {
+    const latest = deviceProfiles[activeDevice].history.slice(-1)[0];
+    snapshotDateInput.value = latest.iso.split('T')[0];
+    snapshotTimeInput.value = latest.iso.split('T')[1];
+    snapshotDateInput.addEventListener('change', () => applyDeviceProfile(activeDevice));
+    snapshotTimeInput.addEventListener('change', () => applyDeviceProfile(activeDevice));
+  }
+
+  applyDeviceProfile(activeDevice);
+
+  dataPills.forEach((pill) => {
+    pill.addEventListener('dragstart', (event) => {
+      event.dataTransfer.setData('text/plain', pill.getAttribute('data-token'));
+    });
+  });
+
+  editor.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    editor.classList.add('drop-target');
+  });
+  editor.addEventListener('dragleave', () => editor.classList.remove('drop-target'));
+  editor.addEventListener('drop', (event) => {
+    event.preventDefault();
+    editor.classList.remove('drop-target');
+    const token = event.dataTransfer.getData('text/plain');
+    if (!token) return;
+    document.execCommand('insertText', false, `${token} `);
+  });
+
+  document.querySelectorAll('[data-cmd]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      editor.focus();
+      document.execCommand(btn.getAttribute('data-cmd'), false, null);
+    });
+  });
+
+  document.getElementById('clearReportBtn').addEventListener('click', () => {
+    editor.innerHTML = '<p></p>';
+    editor.focus();
+  });
+
+  document.getElementById('exportPdfBtn').addEventListener('click', () => {
+    const title = document.getElementById('reportTitle').value || 'Report';
+    const type = document.getElementById('reportType').value || '';
+    const date = document.getElementById('reportDate').value || '';
+    const content = editor.innerHTML;
+
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    if (!printWindow) return;
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>${title}</title>
+        <style>
+          body { font-family: Segoe UI, sans-serif; padding: 28px; color: #111827; }
+          h1 { margin-bottom: 8px; font-size: 24px; }
+          .meta { margin-bottom: 18px; color: #4b5563; font-size: 13px; }
+          .paper { border: 1px solid #e5e7eb; border-radius: 8px; padding: 18px; }
+        </style>
+      </head>
+      <body>
+        <h1>${title}</h1>
+        <div class="meta">Type: ${type} | Date: ${date}</div>
+        <div class="paper">${content}</div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.device-picker') && deviceMenu) {
+      deviceMenu.classList.remove('show');
+    }
+  });
+</script>
+</body>
+</html>
