@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E-Tubig | History/Logs</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    .main::-webkit-scrollbar,
+    .content::-webkit-scrollbar,
+    .sidebar::-webkit-scrollbar { display: none; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 210px;
+      min-height: 100vh;
+      background: #fff;
+      border-right: 1px solid #e8ecf0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      overflow-y: auto;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 1.3rem 1.4rem;
+      color: #1a8fc1;
+      font-weight: 700;
+      font-size: 16px;
+      border-bottom: 1px solid #f0f4f8;
+    }
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 1.4rem;
+      font-size: 14px;
+      color: #6b7280;
+      text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .nav-item:hover { background: #f0f7fb; color: #1a8fc1; }
+    .nav-item.active {
+      background: #e8f4fb;
+      color: #1a8fc1;
+      font-weight: 600;
+      border-right: 3px solid #1a8fc1;
+    }
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .sidebar-bottom {
+      padding: 1rem 0;
+      border-top: 1px solid #f0f4f8;
+    }
+
+    .main {
+      margin-left: 210px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e8ecf0;
+      padding: .75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-icon {
+      position: relative;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      background: #f4f6f9;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .topbar-icon:hover { background: #e8f4fb; color: #1a8fc1; }
+    .topbar-action { position: relative; }
+    .topbar-popover {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 290px;
+      background: #fff;
+      border: 1px solid #e8ecf0;
+      border-radius: 12px;
+      box-shadow: 0 14px 30px rgba(26, 35, 56, 0.12);
+      padding: .8rem;
+      display: none;
+      z-index: 80;
+    }
+    .topbar-popover.show { display: block; }
+    .popover-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: .65rem;
+    }
+    .popover-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+    }
+    .popover-item {
+      border: 1px solid #eef2f7;
+      border-radius: 8px;
+      padding: .55rem .65rem;
+      background: #f9fbfd;
+    }
+    .popover-item strong {
+      display: block;
+      font-size: 12px;
+      color: #1a1a2e;
+      margin-bottom: 2px;
+    }
+    .popover-item span {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.35;
+      display: block;
+    }
+    .badge {
+      position: absolute;
+      top: -2px; right: -2px;
+      width: 17px; height: 17px;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      background: #5b5fcf;
+    }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #cbd5e0;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: #fff; font-size: 14px;
+      cursor: pointer;
+    }
+    .avatar-panel { width: 250px; }
+    .avatar-head {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      margin-bottom: .65rem;
+      padding-bottom: .65rem;
+      border-bottom: 1px solid #eef2f7;
+    }
+    .avatar-chip {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #1a8fc1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .avatar-meta strong {
+      display: block;
+      font-size: 13px;
+      color: #1a1a2e;
+    }
+    .avatar-meta span {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .avatar-actions {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .avatar-actions a {
+      text-decoration: none;
+      font-size: 12px;
+      color: #1a8fc1;
+      font-weight: 600;
+      padding: 4px 2px;
+    }
+    .avatar-actions a:hover { color: #157aab; }
+
+    .content {
+      padding: 1.8rem 2rem;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+      gap: 1rem;
+    }
+    .page-title {
+      font-size: 30px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 2px;
+    }
+    .page-subtitle {
+      font-size: 22px;
+      color: #5f6b7a;
+      font-weight: 400;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+    }
+    .search-box {
+      width: 320px;
+      border: 1px solid #d7dde5;
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-box input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+      color: #2d3748;
+      background: transparent;
+    }
+    .filter-btn {
+      border: 1px solid #d7dde5;
+      background: #fff;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 14px;
+      color: #4a5568;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-wrap { position: relative; }
+    .filter-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 230px;
+      border: 1px solid #e8ecf0;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 12px 24px rgba(26, 35, 56, 0.12);
+      padding: .8rem;
+      z-index: 130;
+      display: none;
+    }
+    .filter-panel.show { display: block; }
+    .filter-title {
+      font-size: 12px;
+      color: #9aa3af;
+      font-weight: 700;
+      margin-bottom: .55rem;
+      letter-spacing: .25px;
+    }
+    .filter-group { margin-bottom: .65rem; }
+    .filter-group:last-of-type { margin-bottom: .45rem; }
+    .filter-group label {
+      display: block;
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    .filter-select {
+      width: 100%;
+      border: 1px solid #d7dde5;
+      border-radius: 7px;
+      font-size: 12px;
+      color: #2d3748;
+      padding: 7px 8px;
+      background: #fff;
+      font-family: inherit;
+      outline: none;
+    }
+    .filter-clear {
+      border: none;
+      background: none;
+      color: #1a8fc1;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 0;
+    }
+
+    .table-wrap {
+      background: #fff;
+      border: 1px solid #e8ecf0;
+      border-radius: 12px;
+      overflow: visible;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left;
+      font-size: 12px;
+      color: #9aa3af;
+      font-weight: 700;
+      letter-spacing: .3px;
+      padding: 14px 16px;
+      border-bottom: 1px solid #edf1f5;
+    }
+    tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #edf1f5;
+      font-size: 14px;
+      color: #2d3748;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    .row-actions {
+      text-align: center;
+      color: #9aa3af;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .action-cell { position: relative; text-align: center; }
+    .action-btn {
+      border: none;
+      background: none;
+      color: #9aa3af;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 2px 4px;
+    }
+    .action-btn:hover { color: #1a8fc1; }
+    .action-menu {
+      position: absolute;
+      right: 8px;
+      top: calc(100% + 6px);
+      min-width: 145px;
+      background: #fff;
+      border: 1px solid #e8ecf0;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(26, 35, 56, 0.14);
+      display: none;
+      z-index: 120;
+      overflow: hidden;
+    }
+    .action-menu.show { display: block; }
+    .action-menu.open-up { top: auto; bottom: calc(100% + 6px); }
+    .action-item {
+      width: 100%;
+      border: none;
+      background: #fff;
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 12px;
+      color: #4a5568;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .action-item:hover { background: #f0f7fb; color: #1a8fc1; }
+    .time-data-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 150;
+    }
+    .time-data-modal.show { display: flex; }
+    .time-data-card {
+      width: min(520px, 92vw);
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e8ecf0;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+      padding: 1rem 1.1rem;
+    }
+    .time-data-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .8rem;
+    }
+    .time-data-title { font-size: 16px; font-weight: 700; color: #1a1a2e; }
+    .time-data-close {
+      border: none;
+      background: none;
+      font-size: 18px;
+      color: #6b7280;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 4px;
+    }
+    .time-data-sub {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: .8rem;
+    }
+    .time-data-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .55rem;
+    }
+    .time-data-item {
+      border: 1px solid #eef2f7;
+      border-radius: 8px;
+      padding: .55rem .65rem;
+      background: #f9fbfd;
+    }
+    .time-data-item strong {
+      display: block;
+      font-size: 11px;
+      color: #9aa3af;
+      margin-bottom: 2px;
+      letter-spacing: .25px;
+    }
+    .time-data-item span {
+      font-size: 14px;
+      color: #1a1a2e;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L4 9v11h5v-6h6v6h5V9z" fill="#1a8fc1"/>
+      <polygon points="12,2 20,9 4,9" fill="#29b6d1"/>
+    </svg>
+    E-Tubig
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="/monitoring" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Real-Time Monitoring
+    </a>
+    <a href="/water-quality" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6 9 4 13 4 16a8 8 0 0016 0c0-3-2-7-8-14z"/></svg>
+      Water Quality
+    </a>
+    <a href="/consumption" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Consumption
+    </a>
+    <a href="/alerts" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Alerts
+    </a>
+    <a href="/history" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h18"/><rect x="2" y="3" width="4" height="4" rx="1"/><rect x="2" y="10" width="4" height="4" rx="1"/><rect x="2" y="17" width="4" height="4" rx="1"/></svg>
+      History/Logs
+    </a>
+    <a href="/reports" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></svg>
+      Reports
+    </a>
+  </nav>
+
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-action" data-popover-wrap>
+      <div class="topbar-icon" data-popover-toggle="alerts">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="badge">6</span>
+      </div>
+      <div class="topbar-popover" data-popover-id="alerts">
+        <div class="popover-title">Notifications</div>
+        <ul class="popover-list">
+          <li class="popover-item">
+            <strong>MQTT Status</strong>
+            <span>Device network reconnected successfully.</span>
+          </li>
+          <li class="popover-item">
+            <strong>Data Sync</strong>
+            <span>History records synced at 10:40 AM.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="topbar-action" data-popover-wrap>
+      <div class="avatar" data-popover-toggle="admin">A</div>
+      <div class="topbar-popover avatar-panel" data-popover-id="admin">
+        <div class="avatar-head">
+          <div class="avatar-chip">A</div>
+          <div class="avatar-meta">
+            <strong>Admin User</strong>
+            <span>admin@etubig.local</span>
+          </div>
+        </div>
+        <div class="avatar-actions">
+          <a href="/settings">Account Settings</a>
+          <a href="/reports">View Reports</a>
+          <a href="/logout">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="header-row">
+      <div>
+        <h1 class="page-title">History</h1>
+        <p class="page-subtitle">Sensor Data Records and Monitoring History</p>
+      </div>
+      <div class="header-actions">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9aa3af" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search" id="historySearchInput" />
+        </div>
+        <div class="filter-wrap">
+          <button class="filter-btn" type="button" id="filterToggleBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+            Filters
+          </button>
+          <div class="filter-panel" id="historyFilterPanel">
+            <div class="filter-title">FILTER LOGS</div>
+            <div class="filter-group">
+              <label for="eventTypeFilter">Event type</label>
+              <select class="filter-select" id="eventTypeFilter">
+                <option value="all">All</option>
+                <option value="SYSTEM">System</option>
+                <option value="STATUS CHANGE">Status change</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="valueFilter">Value</label>
+              <select class="filter-select" id="valueFilter">
+                <option value="all">All</option>
+                <option value="has">Has value</option>
+                <option value="none">No value</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="dateOrderFilter">Date order</label>
+              <select class="filter-select" id="dateOrderFilter">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+              </select>
+            </div>
+            <button class="filter-clear" type="button" id="clearHistoryFilters">Clear filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 15%;">TIMESTAMP</th>
+            <th style="width: 24%;">EVENT TYPE</th>
+            <th style="width: 30%;">DESCRIPTION</th>
+            <th style="width: 12%;">VALUE</th>
+            <th style="width: 9%;"></th>
+            <th style="width: 10%;"></th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          <tr>
+            <td>Dec 30, 09:42 PM</td>
+            <td>STATUS CHANGE</td>
+            <td>Turbidity exceeded threshold</td>
+            <td>6.8 NTU</td>
+            <td><input type="checkbox" /></td>
+            <td class="action-cell">
+              <button type="button" class="action-btn" data-row-action>...</button>
+              <div class="action-menu">
+                <button type="button" class="action-item" data-action="delete">Delete record</button>
+                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
+                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Dec 31, 01:42 PM</td>
+            <td>SYSTEM</td>
+            <td>MQTT Disconnected</td>
+            <td></td>
+            <td><input type="checkbox" /></td>
+            <td class="action-cell">
+              <button type="button" class="action-btn" data-row-action>...</button>
+              <div class="action-menu">
+                <button type="button" class="action-item" data-action="delete">Delete record</button>
+                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
+                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Dec 31, 04:42 PM</td>
+            <td>SYSTEM</td>
+            <td>MQTT Reconnected</td>
+            <td></td>
+            <td><input type="checkbox" /></td>
+            <td class="action-cell">
+              <button type="button" class="action-btn" data-row-action>...</button>
+              <div class="action-menu">
+                <button type="button" class="action-item" data-action="delete">Delete record</button>
+                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
+                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Dec 30, 09:42 PM</td>
+            <td>STATUS CHANGE</td>
+            <td>Temperature above normal</td>
+            <td>50 C</td>
+            <td><input type="checkbox" /></td>
+            <td class="action-cell">
+              <button type="button" class="action-btn" data-row-action>...</button>
+              <div class="action-menu">
+                <button type="button" class="action-item" data-action="delete">Delete record</button>
+                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
+                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="time-data-modal" id="timeDataModal">
+  <div class="time-data-card">
+    <div class="time-data-head">
+      <div class="time-data-title">Event Snapshot</div>
+      <button type="button" class="time-data-close" id="timeDataClose">×</button>
+    </div>
+    <div class="time-data-sub" id="timeDataSub"></div>
+    <div class="time-data-grid" id="timeDataGrid"></div>
+  </div>
+</div>
+<script>
+  const popovers = document.querySelectorAll('[data-popover-id]');
+  const toggles = document.querySelectorAll('[data-popover-toggle]');
+
+  function closeAllPopovers() {
+    popovers.forEach((popover) => popover.classList.remove('show'));
+  }
+
+  toggles.forEach((toggle) => {
+    toggle.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const targetId = toggle.getAttribute('data-popover-toggle');
+      const targetPopover = document.querySelector(`[data-popover-id="${targetId}"]`);
+      const isOpen = targetPopover && targetPopover.classList.contains('show');
+      closeAllPopovers();
+      if (targetPopover && !isOpen) targetPopover.classList.add('show');
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('[data-popover-wrap]')) closeAllPopovers();
+  });
+
+  const tbody = document.getElementById('historyTableBody');
+  const timeDataModal = document.getElementById('timeDataModal');
+  const timeDataSub = document.getElementById('timeDataSub');
+  const timeDataGrid = document.getElementById('timeDataGrid');
+  const timeDataClose = document.getElementById('timeDataClose');
+  const searchInput = document.getElementById('historySearchInput');
+  const filterToggleBtn = document.getElementById('filterToggleBtn');
+  const filterPanel = document.getElementById('historyFilterPanel');
+  const eventTypeFilter = document.getElementById('eventTypeFilter');
+  const valueFilter = document.getElementById('valueFilter');
+  const dateOrderFilter = document.getElementById('dateOrderFilter');
+  const clearHistoryFilters = document.getElementById('clearHistoryFilters');
+
+  function closeAllRowMenus() {
+    document.querySelectorAll('.action-menu').forEach((menu) => menu.classList.remove('show'));
+  }
+
+  if (tbody) {
+    tbody.addEventListener('click', (event) => {
+      const actionBtn = event.target.closest('[data-row-action]');
+      if (actionBtn) {
+        event.stopPropagation();
+        const menu = actionBtn.parentElement.querySelector('.action-menu');
+        const isOpen = menu && menu.classList.contains('show');
+        closeAllRowMenus();
+        if (menu && !isOpen) {
+          menu.classList.remove('open-up');
+          const btnRect = actionBtn.getBoundingClientRect();
+          const spaceBelow = window.innerHeight - btnRect.bottom;
+          if (spaceBelow < 150) menu.classList.add('open-up');
+          menu.classList.add('show');
+        }
+        return;
+      }
+
+      const actionItem = event.target.closest('.action-item');
+      if (!actionItem) return;
+      const row = actionItem.closest('tr');
+      if (!row) return;
+      const action = actionItem.getAttribute('data-action');
+      const timestamp = row.children[0].textContent.trim();
+      const eventType = row.children[1].textContent.trim();
+      const description = row.children[2].textContent.trim();
+      const value = row.children[3].textContent.trim() || 'N/A';
+
+      if (action === 'delete') {
+        row.remove();
+      } else if (action === 'pdf') {
+        window.print();
+      } else if (action === 'time-data') {
+        if (timeDataSub) timeDataSub.textContent = `${eventType} - ${timestamp}`;
+        if (timeDataGrid) {
+          timeDataGrid.innerHTML = `
+            <div class="time-data-item"><strong>Timestamp</strong><span>${timestamp}</span></div>
+            <div class="time-data-item"><strong>Event Type</strong><span>${eventType}</span></div>
+            <div class="time-data-item"><strong>Description</strong><span>${description}</span></div>
+            <div class="time-data-item"><strong>Value</strong><span>${value}</span></div>
+          `;
+        }
+        if (timeDataModal) timeDataModal.classList.add('show');
+      }
+      closeAllRowMenus();
+    });
+  }
+
+  function parseTimestamp(text) {
+    return new Date(text.replace(',', '')).getTime();
+  }
+
+  function applyHistoryFilters() {
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const term = (searchInput?.value || '').toLowerCase().trim();
+    const eventType = eventTypeFilter?.value || 'all';
+    const valueMode = valueFilter?.value || 'all';
+    const dateMode = dateOrderFilter?.value || 'newest';
+
+    rows.forEach((row) => {
+      const timestamp = row.children[0].textContent.trim();
+      const type = row.children[1].textContent.trim();
+      const desc = row.children[2].textContent.trim();
+      const value = row.children[3].textContent.trim();
+      const haystack = `${timestamp} ${type} ${desc} ${value}`.toLowerCase();
+
+      const searchOk = !term || haystack.includes(term);
+      const typeOk = eventType === 'all' || type === eventType;
+      const valueOk = valueMode === 'all' || (valueMode === 'has' ? value !== '' : value === '');
+      row.style.display = searchOk && typeOk && valueOk ? '' : 'none';
+    });
+
+    rows
+      .sort((a, b) => {
+        const aDate = parseTimestamp(a.children[0].textContent.trim());
+        const bDate = parseTimestamp(b.children[0].textContent.trim());
+        return dateMode === 'oldest' ? aDate - bDate : bDate - aDate;
+      })
+      .forEach((row) => tbody.appendChild(row));
+  }
+
+  if (searchInput) searchInput.addEventListener('input', applyHistoryFilters);
+  [eventTypeFilter, valueFilter, dateOrderFilter].forEach((el) => {
+    if (el) el.addEventListener('change', applyHistoryFilters);
+  });
+
+  if (clearHistoryFilters) {
+    clearHistoryFilters.addEventListener('click', () => {
+      if (eventTypeFilter) eventTypeFilter.value = 'all';
+      if (valueFilter) valueFilter.value = 'all';
+      if (dateOrderFilter) dateOrderFilter.value = 'newest';
+      if (searchInput) searchInput.value = '';
+      applyHistoryFilters();
+    });
+  }
+
+  if (filterToggleBtn && filterPanel) {
+    filterToggleBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      filterPanel.classList.toggle('show');
+    });
+    filterPanel.addEventListener('click', (event) => event.stopPropagation());
+  }
+
+  document.addEventListener('click', () => closeAllRowMenus());
+  document.addEventListener('click', (event) => {
+    if (filterPanel && !event.target.closest('.filter-wrap')) filterPanel.classList.remove('show');
+  });
+  if (timeDataClose) timeDataClose.addEventListener('click', () => timeDataModal && timeDataModal.classList.remove('show'));
+  if (timeDataModal) {
+    timeDataModal.addEventListener('click', (event) => {
+      if (event.target === timeDataModal) timeDataModal.classList.remove('show');
+    });
+  }
+  applyHistoryFilters();
+</script>
+</body>
+</html>
