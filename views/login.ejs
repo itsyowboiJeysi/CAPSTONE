@@ -12,19 +12,250 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #a8edea 0%, #29b6d1 40%, #1e7aa8 70%, #c9d6f5 100%);
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(165deg, #0a4d68 0%, #0d7b9c 28%, #2a9d8f 55%, #1a5f7a 85%, #053b50 100%);
       font-family: 'Segoe UI', sans-serif;
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
     body::-webkit-scrollbar { display: none; }
 
+    /* Ambient water shimmer */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 50% at 80% 100%, rgba(42, 157, 143, 0.25) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Dripping drops layer */
+    .water-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .ceiling-highlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 20%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0.08) 80%,
+        transparent 100%
+      );
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.12);
+      opacity: 0.85;
+    }
+
+    .rain-column {
+      position: absolute;
+      left: var(--lx);
+      transform: translateX(-50%);
+      top: -40px;
+      width: 72px;
+      height: calc(100vh + 56px);
+      pointer-events: none;
+    }
+
+    .drop {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      width: var(--w, 4px);
+      height: var(--h, 12px);
+      border-radius: 50% 50% 55% 55% / 65% 65% 38% 38%;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.92) 0%,
+        rgba(200, 240, 255, 0.55) 40%,
+        rgba(165, 220, 255, 0.25) 100%
+      );
+      box-shadow:
+        0 0 10px rgba(255, 255, 255, 0.45),
+        inset -1px 0 2px rgba(255, 255, 255, 0.5);
+      animation: drip-fall var(--dur, 6s) ease-in infinite;
+      animation-delay: var(--delay, 0s);
+      transform-origin: center top;
+    }
+
+    /* Trail / secondary smaller droplets for depth */
+    .drop::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -6px;
+      width: 2px;
+      height: 5px;
+      margin-left: -1px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      opacity: 0.85;
+      filter: blur(0.5px);
+    }
+
+    /* Water impact anchored to bottom edge (same rhythm as drip) */
+    .splash-impact {
+      position: absolute;
+      left: 50%;
+      bottom: -2px;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+      transform: translateX(-50%);
+    }
+
+    .splash-impact::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 14px;
+      height: 6px;
+      margin-left: -7px;
+      margin-bottom: 0;
+      border-radius: 50%;
+      background: radial-gradient(
+        ellipse 100% 100% at 50% 30%,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(200, 246, 255, 0.45) 45%,
+        transparent 72%
+      );
+      box-shadow:
+        0 2px 10px rgba(180, 240, 255, 0.55),
+        0 -1px 4px rgba(255, 255, 255, 0.35);
+      transform-origin: 50% 100%;
+      animation: splash-crown var(--dur, 6s) ease-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+
+    .splash-impact::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 2px;
+      width: 10px;
+      height: 6px;
+      margin-left: -5px;
+      margin-bottom: -3px;
+      border-radius: 50%;
+      border: 2px solid rgba(230, 252, 255, 0.88);
+      box-shadow:
+        inset 0 0 10px rgba(200, 240, 255, 0.35),
+        0 0 12px rgba(180, 235, 255, 0.45);
+      animation: splash-ring var(--dur, 6s) ease-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+
+    @keyframes drip-fall {
+      0% {
+        transform: translate3d(-50%, 0, 0) scaleY(0.45);
+        opacity: 0;
+      }
+      8% {
+        opacity: 0.92;
+        transform: translate3d(-50%, 4vh, 0) scaleY(1);
+      }
+      100% {
+        transform: translate3d(calc(-50% + 2px), 108vh, 0) scaleY(1.35);
+        opacity: 0;
+      }
+    }
+
+    /* Impact fires in final ~10% — matches ease-in drip finishing at surface */
+    @keyframes splash-ring {
+      0%,
+      90% {
+        opacity: 0;
+        transform: scale(0.15);
+      }
+      91% {
+        opacity: 0.95;
+        transform: scale(0.52);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(4.2);
+        border-width: 0;
+      }
+    }
+
+    @keyframes splash-crown {
+      0%,
+      88% {
+        opacity: 0;
+        transform: scale(0.08, 0.2);
+      }
+      90% {
+        opacity: 1;
+        transform: scale(1, 0.42);
+      }
+      95% {
+        opacity: 0.55;
+        transform: scale(1.55, 0.38);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(2.3, 0.15);
+      }
+    }
+
+    /* Staggered positions & timings (rain-column holds --dur / --delay for drop + splash) */
+    .rain-column:nth-child(2) { --lx: 8%; --dur: 4.8s; --delay: 0s; --w: 3px; --h: 10px; }
+    .rain-column:nth-child(3) { --lx: 15%; --dur: 6.4s; --delay: -1.2s; --w: 5px; --h: 14px; }
+    .rain-column:nth-child(4) { --lx: 22%; --dur: 5.1s; --delay: -2.8s; }
+    .rain-column:nth-child(5) { --lx: 31%; --dur: 7s; --delay: -0.6s; --w: 3px; --h: 11px; }
+    .rain-column:nth-child(6) { --lx: 38%; --dur: 5.9s; --delay: -3.5s; }
+    .rain-column:nth-child(7) { --lx: 45%; --dur: 4.2s; --delay: -1.9s; --w: 4px; --h: 13px; }
+    .rain-column:nth-child(8) { --lx: 52%; --dur: 6.8s; --delay: -4.1s; }
+    .rain-column:nth-child(9) { --lx: 58%; --dur: 5.4s; --delay: -0.9s; --w: 3px; }
+    .rain-column:nth-child(10) { --lx: 64%; --dur: 8.2s; --delay: -2.4s; --h: 15px; }
+    .rain-column:nth-child(11) { --lx: 71%; --dur: 5.7s; --delay: -5s; }
+    .rain-column:nth-child(12) { --lx: 78%; --dur: 6.1s; --delay: -1.5s; --w: 5px; }
+    .rain-column:nth-child(13) { --lx: 85%; --dur: 4.5s; --delay: -3.9s; }
+    .rain-column:nth-child(14) { --lx: 91%; --dur: 7.3s; --delay: -0.3s; --w: 3px; --h: 9px; }
+    .rain-column:nth-child(15) { --lx: 96%; --dur: 6.9s; --delay: -2.1s; }
+    .rain-column:nth-child(16) { --lx: 5%; --dur: 9.1s; --delay: -4.8s; --w: 3px; }
+    .rain-column:nth-child(17) { --lx: 27%; --dur: 8.6s; --delay: -6.2s; --h: 16px; }
+    .rain-column:nth-child(18) { --lx: 49%; --dur: 10.2s; --delay: -7.5s; --w: 4px; }
+    .rain-column:nth-child(19) { --lx: 74%; --dur: 9.8s; --delay: -3.7s; }
+    .rain-column:nth-child(20) { --lx: 83%; --dur: 11s; --delay: -8.9s; --w: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .drop { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; opacity: 0.15; transform: translate3d(-50%, 35vh, 0); }
+      .splash-impact::before,
+      .splash-impact::after { animation: none !important; opacity: 0 !important; }
+      .ceiling-highlight { opacity: 0.4; }
+    }
+
     .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 2rem 2.2rem;
+      position: relative;
+      z-index: 2;
       width: 100%;
       max-width: 420px;
+      margin: 1.25rem;
+      padding: 2rem 2.2rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow:
+        0 8px 32px rgba(0, 30, 50, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.06);
     }
 
     .brand {
@@ -32,36 +263,53 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 1.4rem;
-      color: #1a8fc1;
+      color: rgba(232, 250, 255, 0.95);
+      text-shadow: 0 1px 2px rgba(0, 40, 60, 0.35);
       font-weight: 700;
       font-size: 15px;
     }
 
-    h1 { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .brand svg path:first-of-type,
+    .brand svg polygon { fill: rgba(232, 250, 255, 0.95); filter: drop-shadow(0 0 8px rgba(155, 220, 255, 0.5)); }
 
-    .subtitle { font-size: 13px; color: #7a8499; margin-bottom: 1.4rem; }
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f2942;
+      margin-bottom: 4px;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
 
-    label { display: block; font-size: 13px; font-weight: 600; color: #2d3748; margin-bottom: 6px; }
+    .subtitle { font-size: 13px; color: rgba(20, 40, 60, 0.78); margin-bottom: 1.4rem; }
+
+    label { display: block; font-size: 13px; font-weight: 600; color: rgba(26, 40, 55, 0.92); margin-bottom: 6px; }
 
     input[type="email"],
     input[type="password"],
     input[type="text"] {
       width: 100%;
-      border: 1.5px solid #cbd5e0;
-      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 10px;
       padding: 10px 14px;
       font-size: 14px;
-      color: #2d3748;
+      color: #1a2744;
+      background: rgba(255, 255, 255, 0.32);
       outline: none;
       margin-bottom: 1rem;
-      transition: border-color .2s;
+      transition: border-color .2s, background .2s, box-shadow .2s;
     }
 
-    input:focus { border-color: #1a8fc1; }
+    input::placeholder { color: rgba(26, 39, 55, 0.45); }
+
+    input:focus {
+      border-color: rgba(74, 200, 220, 0.65);
+      background: rgba(255, 255, 255, 0.42);
+      box-shadow: 0 0 0 3px rgba(120, 210, 240, 0.25);
+    }
 
     .input-error { border-color: #e53e3e !important; }
 
-    .error-msg { color: #e53e3e; font-size: 12px; margin-top: -10px; margin-bottom: 12px; }
+    .error-msg { color: #c53030; font-size: 12px; margin-top: -10px; margin-bottom: 12px; font-weight: 500; text-shadow: 0 1px 0 rgba(255,255,255,0.4); }
 
     .password-row {
       display: flex;
@@ -70,7 +318,8 @@
       margin-bottom: 6px;
     }
 
-    .forgot { font-size: 13px; color: #1a8fc1; text-decoration: none; font-weight: 500; }
+    .forgot { font-size: 13px; color: rgba(10, 100, 130, 0.95); text-decoration: none; font-weight: 600; transition: color .2s; }
+    .forgot:hover { color: #064e6a; text-decoration: underline; }
 
     .password-wrap {
       position: relative;
@@ -93,10 +342,13 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #a0aec0;
+      color: rgba(45, 70, 90, 0.55);
       padding: 0;
       line-height: 1;
+      border-radius: 6px;
     }
+
+    .toggle-pw:hover { color: rgba(10, 80, 100, 0.85); }
 
     .checkbox-row {
       display: flex;
@@ -105,36 +357,66 @@
       margin-bottom: 1.2rem;
     }
 
-    .checkbox-row input { width: 16px; height: 16px; accent-color: #1a8fc1; cursor: pointer; margin-bottom: 0; }
-    .checkbox-row label { margin-bottom: 0; font-weight: 400; color: #4a5568; cursor: pointer; }
+    .checkbox-row input { width: 16px; height: 16px; accent-color: #0d7b9c; cursor: pointer; margin-bottom: 0; }
+    .checkbox-row label { margin-bottom: 0; font-weight: 400; color: rgba(30, 50, 65, 0.88); cursor: pointer; }
 
     .btn-continue {
       width: 100%;
-      background: #1a8fc1;
+      background: linear-gradient(135deg, rgba(13, 123, 156, 0.95) 0%, rgba(10, 77, 104, 0.98) 100%);
       color: #fff;
-      border: none;
-      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 10px;
       padding: 12px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       letter-spacing: .3px;
-      transition: background .2s;
+      transition: transform .15s, box-shadow .2s, filter .2s;
+      box-shadow: 0 4px 16px rgba(5, 50, 70, 0.35);
     }
 
-    .btn-continue:hover { background: #157aab; }
+    .btn-continue:hover {
+      filter: brightness(1.06);
+      box-shadow: 0 6px 22px rgba(5, 50, 70, 0.45);
+    }
+
+    .btn-continue:active { transform: scale(0.99); }
 
     .footer-text {
       text-align: center;
       font-size: 13px;
-      color: #718096;
+      color: rgba(25, 45, 60, 0.75);
       margin-top: 1.2rem;
     }
 
-    .footer-text a { color: #1a8fc1; text-decoration: none; font-weight: 600; }
+    .footer-text a { color: rgba(8, 90, 115, 0.95); text-decoration: none; font-weight: 600; }
+    .footer-text a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
+
+<div class="water-scene" aria-hidden="true">
+  <div class="ceiling-highlight"></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+</div>
 
 <div class="card">
 
