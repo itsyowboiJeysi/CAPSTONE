@@ -508,30 +508,21 @@
     <div class="topbar-action" data-popover-wrap>
       <div class="topbar-icon" data-popover-toggle="alerts">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="badge">6</span>
+        <span class="badge" data-etubig-alert-badge>0</span>
       </div>
       <div class="topbar-popover" data-popover-id="alerts">
         <div class="popover-title">Notifications</div>
-        <ul class="popover-list">
-          <li class="popover-item">
-            <strong>MQTT Status</strong>
-            <span>Device network reconnected successfully.</span>
-          </li>
-          <li class="popover-item">
-            <strong>Data Sync</strong>
-            <span>History records synced at 10:40 AM.</span>
-          </li>
-        </ul>
+        <ul class="popover-list" data-etubig-notifications></ul>
       </div>
     </div>
     <div class="topbar-action" data-popover-wrap>
       <div class="avatar" data-popover-toggle="admin">A</div>
       <div class="topbar-popover avatar-panel" data-popover-id="admin">
         <div class="avatar-head">
-          <div class="avatar-chip">A</div>
+          <div class="avatar-chip" data-etubig-user-chip>A</div>
           <div class="avatar-meta">
-            <strong>Admin User</strong>
-            <span>admin@etubig.local</span>
+            <strong data-etubig-user-name>Admin User</strong>
+            <span data-etubig-user-email>admin@etubig.local</span>
           </div>
         </div>
         <div class="avatar-actions">
@@ -565,6 +556,8 @@
               <label for="eventTypeFilter">Event type</label>
               <select class="filter-select" id="eventTypeFilter">
                 <option value="all">All</option>
+                <option value="AUTH">Auth (login / signup)</option>
+                <option value="USER ADMIN">User admin</option>
                 <option value="SYSTEM">System</option>
                 <option value="STATUS CHANGE">Status change</option>
               </select>
@@ -602,12 +595,13 @@
             <th style="width: 10%;"></th>
           </tr>
         </thead>
-        <tbody id="historyTableBody">
-          <tr>
-            <td>Dec 30, 09:42 PM</td>
-            <td>STATUS CHANGE</td>
-            <td>Turbidity exceeded threshold</td>
-            <td>6.8 NTU</td>
+                <tbody id="historyTableBody">
+          <% (etubig.logs || []).forEach(function(log) { %>
+          <tr data-log-id="<%= log.id %>">
+            <td><%= log.timestamp %></td>
+            <td><%= log.eventType %></td>
+            <td><%= log.description %></td>
+            <td><%= log.value %></td>
             <td><input type="checkbox" /></td>
             <td class="action-cell">
               <button type="button" class="action-btn" data-row-action>...</button>
@@ -618,51 +612,7 @@
               </div>
             </td>
           </tr>
-          <tr>
-            <td>Dec 31, 01:42 PM</td>
-            <td>SYSTEM</td>
-            <td>MQTT Disconnected</td>
-            <td></td>
-            <td><input type="checkbox" /></td>
-            <td class="action-cell">
-              <button type="button" class="action-btn" data-row-action>...</button>
-              <div class="action-menu">
-                <button type="button" class="action-item" data-action="delete">Delete record</button>
-                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
-                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Dec 31, 04:42 PM</td>
-            <td>SYSTEM</td>
-            <td>MQTT Reconnected</td>
-            <td></td>
-            <td><input type="checkbox" /></td>
-            <td class="action-cell">
-              <button type="button" class="action-btn" data-row-action>...</button>
-              <div class="action-menu">
-                <button type="button" class="action-item" data-action="delete">Delete record</button>
-                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
-                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Dec 30, 09:42 PM</td>
-            <td>STATUS CHANGE</td>
-            <td>Temperature above normal</td>
-            <td>50 C</td>
-            <td><input type="checkbox" /></td>
-            <td class="action-cell">
-              <button type="button" class="action-btn" data-row-action>...</button>
-              <div class="action-menu">
-                <button type="button" class="action-item" data-action="delete">Delete record</button>
-                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
-                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
-              </div>
-            </td>
-          </tr>
+          <% }); %>
         </tbody>
       </table>
     </div>
@@ -678,6 +628,8 @@
     <div class="time-data-grid" id="timeDataGrid"></div>
   </div>
 </div>
+<%- include('partials/etubig-data') %>
+<script src="/js/etubig-ui.js"></script>
 <script>
   const popovers = document.querySelectorAll('[data-popover-id]');
   const toggles = document.querySelectorAll('[data-popover-toggle]');
@@ -747,7 +699,9 @@
       const value = row.children[3].textContent.trim() || 'N/A';
 
       if (action === 'delete') {
-        row.remove();
+        const logId = row.getAttribute('data-log-id');
+        if (logId) fetch(`/api/history/${logId}`, { method: 'DELETE' }).then(() => row.remove());
+        else row.remove();
       } else if (action === 'pdf') {
         window.print();
       } else if (action === 'time-data') {

@@ -324,9 +324,15 @@
       background: #fff;
       border: 1px solid #e8ecf0;
       border-radius: 12px;
-      padding: 1rem 1.2rem;
+      padding: 1.15rem 1.2rem;
       position: relative;
       overflow: hidden;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      text-align: center;
     }
     .metric-card::after {
       content: '';
@@ -335,9 +341,20 @@
       height: 3px;
       background: linear-gradient(90deg, #1a8fc1, #29b6d1);
     }
-    .metric-label { font-size: 12px; color: #9aa3af; margin-bottom: 8px; }
-    .metric-value { font-size: 26px; font-weight: 700; color: #1a1a2e; line-height: 1; }
-    .metric-unit { font-size: 13px; font-weight: 400; color: #6b7280; margin-left: 2px; }
+    .metric-label { font-size: 18px; color: #9aa3af; margin-bottom: 12px; }
+    .metric-value { font-size: 40px; font-weight: 700; color: #1a1a2e; line-height: 1.05; margin-top: auto; margin-bottom: auto; }
+    .metric-unit { font-size: 18px; font-weight: 500; color: #6b7280; margin-left: 5px; }
+
+    .metric-grid .metric-label {
+      color: #0d2438 !important;
+      font-weight: 700;
+      letter-spacing: 0.25px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      border-radius: 6px;
+      display: inline-block;
+      padding: 3px 8px;
+    }
 
     /* Chart card */
     .chart-card {
@@ -373,6 +390,101 @@
     }
     .period-btn:hover:not(.active) { border-color: #1a8fc1; color: #1a8fc1; }
     .chart-wrap { position: relative; height: 220px; }
+
+    .consumption-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      gap: 1rem;
+      align-items: stretch;
+      margin-bottom: 1.4rem;
+    }
+
+    .consumption-row .chart-card {
+      margin-bottom: 0;
+    }
+
+    .flow-side-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-height: 100%;
+      padding: 1.3rem 1.1rem;
+    }
+
+    .flow-side-card .metric-label {
+      font-size: 14px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      color: #4f6171;
+    }
+
+    .flow-side-card .metric-value {
+      font-size: 38px;
+      line-height: 1.05;
+      color: #0d2438;
+    }
+
+    .flow-side-card .metric-unit {
+      font-size: 16px;
+      font-weight: 600;
+      margin-left: 6px;
+      color: #395a6c;
+    }
+
+    .quality-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .quality-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .quality-subtitle {
+      font-size: 12px;
+      color: #0f2942;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.42);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 7px;
+      padding: 4px 8px;
+      display: inline-flex;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .mqtt-ready-btn {
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.5);
+      color: #0f2942;
+      border-radius: 9px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all .15s;
+    }
+
+    .mqtt-ready-btn:hover {
+      border-color: rgba(26, 143, 193, 0.5);
+      background: rgba(255, 255, 255, 0.75);
+      color: #065a73;
+    }
+
+    .mqtt-ready-btn.active {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.55);
+      color: #0f5b45;
+    }
 
     /* Status cards row */
     .status-grid {
@@ -450,34 +562,21 @@
     <div class="topbar-action" data-popover-wrap>
       <div class="topbar-icon" data-popover-toggle="alerts">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="badge badge-indigo">6</span>
+        <span class="badge badge-indigo" data-etubig-alert-badge>0</span>
       </div>
       <div class="topbar-popover" data-popover-id="alerts">
         <div class="popover-title">Notifications</div>
-        <ul class="popover-list">
-          <li class="popover-item">
-            <strong>pH Warning</strong>
-            <span>Reservoir 2 recorded pH 6.4 at 08:45 AM.</span>
-          </li>
-          <li class="popover-item">
-            <strong>Flow Update</strong>
-            <span>Main line flow increased by 12% this hour.</span>
-          </li>
-          <li class="popover-item">
-            <strong>Reminder</strong>
-            <span>Monthly compliance report is due today.</span>
-          </li>
-        </ul>
+        <ul class="popover-list" data-etubig-notifications></ul>
       </div>
     </div>
     <div class="topbar-action" data-popover-wrap>
       <div class="avatar" data-popover-toggle="admin">A</div>
       <div class="topbar-popover avatar-panel" data-popover-id="admin">
         <div class="avatar-head">
-          <div class="avatar-chip">A</div>
+          <div class="avatar-chip" data-etubig-user-chip>A</div>
           <div class="avatar-meta">
-            <strong>Admin User</strong>
-            <span>admin@etubig.local</span>
+            <strong data-etubig-user-name>Admin User</strong>
+            <span data-etubig-user-email>admin@etubig.local</span>
           </div>
         </div>
         <div class="avatar-actions">
@@ -511,6 +610,35 @@
       </div>
     </div>
 
+    <!-- Water Consumption -->
+    <div class="consumption-row">
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">Water Consumption Reports</span>
+          <button class="period-btn active" onclick="switchPeriod(this,'30m')">30 mins</button>
+          <button class="period-btn" onclick="switchPeriod(this,'1h')">1 hour</button>
+          <button class="period-btn" onclick="switchPeriod(this,'3h')">3 hours</button>
+          <button class="period-btn" onclick="switchPeriod(this,'8h')">8 hrs</button>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="liveChart"></canvas>
+        </div>
+      </div>
+
+      <div class="metric-card flow-side-card">
+        <div class="metric-label">Flow Rate</div>
+        <div class="metric-value" data-metric-value="flow">50<span class="metric-unit">L/min</span></div>
+      </div>
+    </div>
+
+    <div class="quality-header">
+      <div>
+        <div class="quality-title">Water Quality Intake</div>
+        <div class="quality-subtitle" id="mqttReadyState">MQTT intake is currently paused</div>
+      </div>
+      <button type="button" id="mqttReadyToggle" class="mqtt-ready-btn">Activate MQTT Intake</button>
+    </div>
+
     <!-- Metrics -->
     <div class="metric-grid">
       <div class="metric-card">
@@ -526,22 +654,8 @@
         <div class="metric-value" data-metric-value="temperature">23<span class="metric-unit">°C</span></div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Flow Rate</div>
-        <div class="metric-value" data-metric-value="flow">50<span class="metric-unit">L/min</span></div>
-      </div>
-    </div>
-
-    <!-- Chart -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <span class="chart-title">Water Consumption Reports</span>
-        <button class="period-btn active" onclick="switchPeriod(this,'30m')">30 mins</button>
-        <button class="period-btn" onclick="switchPeriod(this,'1h')">1 hour</button>
-        <button class="period-btn" onclick="switchPeriod(this,'3h')">3 hours</button>
-        <button class="period-btn" onclick="switchPeriod(this,'8h')">8 hrs</button>
-      </div>
-      <div class="chart-wrap">
-        <canvas id="liveChart"></canvas>
+        <div class="metric-label">Ammonia</div>
+        <div class="metric-value" data-metric-value="ammonia">0.3<span class="metric-unit">mg/L</span></div>
       </div>
     </div>
 
@@ -549,7 +663,7 @@
     <div class="status-grid">
       <div class="status-card">
         <div class="status-label">MQTT Connection</div>
-        <div class="status-value">Connected</div>
+        <div class="status-value" id="mqttConnectionStatus">Connected</div>
       </div>
       <div class="status-card">
         <div class="status-label">Status</div>
@@ -563,6 +677,8 @@
   </div>
 </div>
 
+<%- include('partials/etubig-data') %>
+<script src="/js/etubig-ui.js"></script>
 <script>
   // Live clock
   function updateClock() {
@@ -579,50 +695,20 @@
     return Array.from({length: count}, (_, i) => base + Math.sin(i * 0.4) * spread + Math.random() * (spread * 0.5));
   }
 
-  const periodData = {
-    '30m': { labels: Array.from({length:30},(_,i)=>i%5===0?`${i}m`:''), data: [makePoints(300,30,60), makePoints(180,30,40)] },
-    '1h':  { labels: Array.from({length:12},(_,i)=>`${i*5}m`),           data: [makePoints(310,12,65), makePoints(185,12,42)] },
-    '3h':  { labels: Array.from({length:18},(_,i)=>`${i*10}m`),          data: [makePoints(320,18,70), makePoints(190,18,45)] },
-    '8h':  { labels: months,                                               data: [makePoints(340,12,80), makePoints(200,12,50)] },
-  };
-  const deviceProfiles = [
-    {
-      name: 'ESP-32 Main Tank',
-      topic: 'etubig/main-tank/status',
-      metrics: { ph: 7.2, turbidity: 2.1, temperature: 23, flow: 50 },
-      periodData
-    },
-    {
-      name: 'ESP-32 Zone A',
-      topic: 'etubig/zone-a/status',
-      metrics: { ph: 6.7, turbidity: 3.4, temperature: 26, flow: 58 },
-      periodData: {
-        '30m': { labels: Array.from({length:30},(_,i)=>i%5===0?`${i}m`:''), data: [makePoints(280,30,55), makePoints(220,30,50)] },
-        '1h':  { labels: Array.from({length:12},(_,i)=>`${i*5}m`),           data: [makePoints(290,12,58), makePoints(225,12,52)] },
-        '3h':  { labels: Array.from({length:18},(_,i)=>`${i*10}m`),          data: [makePoints(300,18,65), makePoints(230,18,56)] },
-        '8h':  { labels: months,                                               data: [makePoints(315,12,70), makePoints(240,12,58)] },
-      }
-    },
-    {
-      name: 'ESP-8266 Pump House',
-      topic: 'etubig/pump-house/status',
-      metrics: { ph: 7.8, turbidity: 1.3, temperature: 22, flow: 64 },
-      periodData: {
-        '30m': { labels: Array.from({length:30},(_,i)=>i%5===0?`${i}m`:''), data: [makePoints(340,30,50), makePoints(150,30,34)] },
-        '1h':  { labels: Array.from({length:12},(_,i)=>`${i*5}m`),           data: [makePoints(350,12,54), makePoints(155,12,36)] },
-        '3h':  { labels: Array.from({length:18},(_,i)=>`${i*10}m`),          data: [makePoints(360,18,58), makePoints(160,18,40)] },
-        '8h':  { labels: months,                                               data: [makePoints(375,12,62), makePoints(165,12,42)] },
-      }
-    },
-  ];
+  const deviceProfiles = ETUBIG.deviceProfiles || [];
 
   const colors = [
     { line: '#2d3ac8', fill: 'rgba(45,58,200,0.10)' },
     { line: '#a5b4fc', fill: 'rgba(165,180,252,0.07)' },
   ];
 
+  function flowPeriodData(device) {
+    return device?.consumptionFlowData || device?.periodData || {};
+  }
+
   function makeDatasets(d) {
-    return d.data.map((pts, i) => ({
+    const series = d?.data || d?.datasets || d?.d || [];
+    return series.map((pts, i) => ({
       data: pts,
       borderColor: colors[i].line,
       backgroundColor: colors[i].fill,
@@ -635,13 +721,14 @@
 
   const ctx = document.getElementById('liveChart').getContext('2d');
   const deviceNameEl = document.getElementById('deviceName');
-  let activeDevice = deviceProfiles[0];
+  let activeDevice = deviceProfiles[0] || { name: 'No device', topic: '', metrics: {}, consumptionFlowData: {} };
   let currentPeriod = '30m';
+  const initialPeriod = flowPeriodData(activeDevice)[currentPeriod] || { labels: [], datasets: [[]] };
   const liveChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: activeDevice.periodData['30m'].labels,
-      datasets: makeDatasets(activeDevice.periodData['30m']),
+      labels: initialPeriod.labels || [],
+      datasets: makeDatasets(initialPeriod),
     },
     options: {
       responsive: true,
@@ -668,8 +755,9 @@
     btn.closest('.chart-header').querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentPeriod = key;
-    const d = activeDevice.periodData[key];
-    liveChart.data.labels = d.labels;
+    const d = flowPeriodData(activeDevice)[key];
+    if (!d) return;
+    liveChart.data.labels = d.labels || [];
     liveChart.data.datasets = makeDatasets(d);
     liveChart.update();
   }
@@ -682,33 +770,31 @@
   }
 
   function applyDeviceProfile(device) {
-    activeDevice = device;
+    activeDevice = device || activeDevice;
     if (deviceNameEl) deviceNameEl.textContent = device.name;
-    setMetricValue('ph', device.metrics.ph, 'pH');
-    setMetricValue('turbidity', device.metrics.turbidity, 'NTU');
-    setMetricValue('temperature', device.metrics.temperature, '°C');
-    setMetricValue('flow', device.metrics.flow, 'L/min');
-    const selected = activeDevice.periodData[currentPeriod] || activeDevice.periodData['30m'];
-    liveChart.data.labels = selected.labels;
+    const m = device.metrics || {};
+    setMetricValue('ph', m.ph, 'pH');
+    setMetricValue('turbidity', m.turbidity, 'NTU');
+    setMetricValue('temperature', m.temperature, '°C');
+    setMetricValue('ammonia', m.ammonia, 'mg/L');
+    setMetricValue('flow', m.flow, 'L/min');
+    const flowData = flowPeriodData(activeDevice);
+    const selected = flowData[currentPeriod] || flowData['30m'] || { labels: [], datasets: [[]] };
+    liveChart.data.labels = selected.labels || [];
     liveChart.data.datasets = makeDatasets(selected);
     liveChart.update();
   }
-
-  // Simulate live data update every 3s
-  setInterval(() => {
-    liveChart.data.datasets.forEach(ds => {
-      ds.data.shift();
-      ds.data.push(ds.data[ds.data.length - 1] + (Math.random() - 0.48) * 20);
-    });
-    liveChart.update('none');
-  }, 3000);
 
   // Topbar popovers (notification + admin profile)
   const popovers = document.querySelectorAll('[data-popover-id]');
   const toggles = document.querySelectorAll('[data-popover-toggle]');
   const devicesLink = document.getElementById('devicesLink');
   const devicesPopover = document.getElementById('devicesPopover');
+  const mqttReadyToggle = document.getElementById('mqttReadyToggle');
+  const mqttReadyState = document.getElementById('mqttReadyState');
+  const mqttConnectionStatus = document.getElementById('mqttConnectionStatus');
   const activeEspDevices = deviceProfiles;
+  let mqttIntakeActive = false;
 
   if (devicesPopover) {
     devicesPopover.innerHTML = activeEspDevices
@@ -749,6 +835,27 @@
       devicesPopover.classList.remove('show');
     });
   }
+
+  function setMqttIntakeState(isActive) {
+    mqttIntakeActive = isActive;
+    if (!mqttReadyToggle || !mqttReadyState) return;
+    mqttReadyToggle.classList.toggle('active', isActive);
+    mqttReadyToggle.textContent = isActive ? 'MQTT Intake Active' : 'Activate MQTT Intake';
+    mqttReadyState.textContent = isActive
+      ? 'Ready to receive incoming MQTT sensor data'
+      : 'MQTT intake is currently paused';
+    if (mqttConnectionStatus) {
+      mqttConnectionStatus.textContent = isActive ? 'Connected (Receiving)' : 'Connected (Idle)';
+    }
+  }
+
+  if (mqttReadyToggle) {
+    mqttReadyToggle.addEventListener('click', () => {
+      setMqttIntakeState(!mqttIntakeActive);
+    });
+  }
+
+  setMqttIntakeState(false);
 
   applyDeviceProfile(activeDevice);
 

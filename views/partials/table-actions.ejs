@@ -1,0 +1,8 @@
+<td class="action-cell">
+  <button type="button" class="action-btn" data-row-action>...</button>
+  <div class="action-menu">
+    <% actions.forEach(function(action) { %>
+      <button type="button" class="action-item" data-action="<%= action.id %>"><%= action.label %></button>
+    <% }); %>
+  </div>
+</td>

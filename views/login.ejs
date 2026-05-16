@@ -60,6 +60,80 @@
       opacity: 0.85;
     }
 
+    .water-surface {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 84px;
+      z-index: 2;
+      pointer-events: none;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(225, 252, 255, 0.25) 0%,
+          rgba(90, 190, 210, 0.35) 35%,
+          rgba(20, 95, 120, 0.5) 100%
+        );
+      box-shadow:
+        inset 0 1px 0 rgba(240, 255, 255, 0.75),
+        inset 0 12px 20px rgba(185, 240, 250, 0.18),
+        0 -10px 28px rgba(10, 55, 80, 0.32);
+    }
+
+    .wave-band {
+      position: absolute;
+      left: -18%;
+      width: 136%;
+      top: -14px;
+      height: 44px;
+      opacity: 0.9;
+      background:
+        radial-gradient(24px 10px at 12px 14px, rgba(230, 252, 255, 0.95) 34%, transparent 38%) repeat-x,
+        linear-gradient(180deg, rgba(220, 248, 255, 0.35) 0%, rgba(90, 190, 210, 0) 100%);
+      background-size: 46px 22px, 100% 100%;
+      animation: wave-drift 6.2s linear infinite;
+      filter: drop-shadow(0 2px 5px rgba(190, 240, 255, 0.4));
+    }
+
+    .wave-band.back {
+      top: -8px;
+      opacity: 0.5;
+      transform: scaleY(0.9);
+      animation-duration: 9.4s;
+      animation-direction: reverse;
+      background:
+        radial-gradient(34px 11px at 17px 13px, rgba(200, 242, 252, 0.7) 32%, transparent 37%) repeat-x,
+        linear-gradient(180deg, rgba(190, 235, 245, 0.18) 0%, rgba(70, 160, 185, 0) 100%);
+      background-size: 58px 24px, 100% 100%;
+    }
+
+    .surface-ripples {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .impact-ripple {
+      position: absolute;
+      left: var(--x, 50%);
+      top: 2px;
+      width: var(--size, 12px);
+      height: calc(var(--size, 12px) * 0.44);
+      margin-left: calc(var(--size, 12px) * -0.5);
+      border-radius: 50%;
+      border: 2px solid rgba(236, 253, 255, 0.96);
+      box-shadow:
+        0 0 15px rgba(180, 240, 255, 0.55),
+        inset 0 0 8px rgba(220, 250, 255, 0.35);
+      transform: scale(0.22);
+      opacity: 0.95;
+      animation: impact-ripple 0.92s ease-out forwards;
+    }
+
     .rain-column {
       position: absolute;
       left: var(--lx);
@@ -106,59 +180,6 @@
       filter: blur(0.5px);
     }
 
-    /* Water impact anchored to bottom edge (same rhythm as drip) */
-    .splash-impact {
-      position: absolute;
-      left: 50%;
-      bottom: -2px;
-      width: 0;
-      height: 0;
-      pointer-events: none;
-      transform: translateX(-50%);
-    }
-
-    .splash-impact::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 14px;
-      height: 6px;
-      margin-left: -7px;
-      margin-bottom: 0;
-      border-radius: 50%;
-      background: radial-gradient(
-        ellipse 100% 100% at 50% 30%,
-        rgba(255, 255, 255, 0.95) 0%,
-        rgba(200, 246, 255, 0.45) 45%,
-        transparent 72%
-      );
-      box-shadow:
-        0 2px 10px rgba(180, 240, 255, 0.55),
-        0 -1px 4px rgba(255, 255, 255, 0.35);
-      transform-origin: 50% 100%;
-      animation: splash-crown var(--dur, 6s) ease-out infinite;
-      animation-delay: var(--delay, 0s);
-    }
-
-    .splash-impact::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 2px;
-      width: 10px;
-      height: 6px;
-      margin-left: -5px;
-      margin-bottom: -3px;
-      border-radius: 50%;
-      border: 2px solid rgba(230, 252, 255, 0.88);
-      box-shadow:
-        inset 0 0 10px rgba(200, 240, 255, 0.35),
-        0 0 12px rgba(180, 235, 255, 0.45);
-      animation: splash-ring var(--dur, 6s) ease-out infinite;
-      animation-delay: var(--delay, 0s);
-    }
-
     @keyframes drip-fall {
       0% {
         transform: translate3d(-50%, 0, 0) scaleY(0.45);
@@ -174,69 +195,52 @@
       }
     }
 
-    /* Impact fires in final ~10% — matches ease-in drip finishing at surface */
-    @keyframes splash-ring {
-      0%,
-      90% {
-        opacity: 0;
-        transform: scale(0.15);
-      }
-      91% {
+    @keyframes wave-drift {
+      0% { transform: translateX(0); }
+      50% { transform: translateX(-7%); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes impact-ripple {
+      0% {
+        transform: scale(0.2);
         opacity: 0.95;
-        transform: scale(0.52);
+      }
+      70% {
+        opacity: 0.8;
       }
       100% {
+        transform: scale(3.8);
         opacity: 0;
-        transform: scale(4.2);
         border-width: 0;
       }
     }
 
-    @keyframes splash-crown {
-      0%,
-      88% {
-        opacity: 0;
-        transform: scale(0.08, 0.2);
-      }
-      90% {
-        opacity: 1;
-        transform: scale(1, 0.42);
-      }
-      95% {
-        opacity: 0.55;
-        transform: scale(1.55, 0.38);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(2.3, 0.15);
-      }
-    }
-
     /* Staggered positions & timings (rain-column holds --dur / --delay for drop + splash) */
-    .rain-column:nth-child(2) { --lx: 8%; --dur: 4.8s; --delay: 0s; --w: 3px; --h: 10px; }
-    .rain-column:nth-child(3) { --lx: 15%; --dur: 6.4s; --delay: -1.2s; --w: 5px; --h: 14px; }
-    .rain-column:nth-child(4) { --lx: 22%; --dur: 5.1s; --delay: -2.8s; }
-    .rain-column:nth-child(5) { --lx: 31%; --dur: 7s; --delay: -0.6s; --w: 3px; --h: 11px; }
-    .rain-column:nth-child(6) { --lx: 38%; --dur: 5.9s; --delay: -3.5s; }
-    .rain-column:nth-child(7) { --lx: 45%; --dur: 4.2s; --delay: -1.9s; --w: 4px; --h: 13px; }
-    .rain-column:nth-child(8) { --lx: 52%; --dur: 6.8s; --delay: -4.1s; }
-    .rain-column:nth-child(9) { --lx: 58%; --dur: 5.4s; --delay: -0.9s; --w: 3px; }
-    .rain-column:nth-child(10) { --lx: 64%; --dur: 8.2s; --delay: -2.4s; --h: 15px; }
-    .rain-column:nth-child(11) { --lx: 71%; --dur: 5.7s; --delay: -5s; }
-    .rain-column:nth-child(12) { --lx: 78%; --dur: 6.1s; --delay: -1.5s; --w: 5px; }
-    .rain-column:nth-child(13) { --lx: 85%; --dur: 4.5s; --delay: -3.9s; }
-    .rain-column:nth-child(14) { --lx: 91%; --dur: 7.3s; --delay: -0.3s; --w: 3px; --h: 9px; }
-    .rain-column:nth-child(15) { --lx: 96%; --dur: 6.9s; --delay: -2.1s; }
-    .rain-column:nth-child(16) { --lx: 5%; --dur: 9.1s; --delay: -4.8s; --w: 3px; }
-    .rain-column:nth-child(17) { --lx: 27%; --dur: 8.6s; --delay: -6.2s; --h: 16px; }
-    .rain-column:nth-child(18) { --lx: 49%; --dur: 10.2s; --delay: -7.5s; --w: 4px; }
-    .rain-column:nth-child(19) { --lx: 74%; --dur: 9.8s; --delay: -3.7s; }
-    .rain-column:nth-child(20) { --lx: 83%; --dur: 11s; --delay: -8.9s; --w: 3px; }
+    .rain-column:nth-child(3) { --lx: 8%; --dur: 4.8s; --delay: 0s; --w: 3px; --h: 10px; }
+    .rain-column:nth-child(4) { --lx: 15%; --dur: 6.4s; --delay: -1.2s; --w: 5px; --h: 14px; }
+    .rain-column:nth-child(5) { --lx: 22%; --dur: 5.1s; --delay: -2.8s; }
+    .rain-column:nth-child(6) { --lx: 31%; --dur: 7s; --delay: -0.6s; --w: 3px; --h: 11px; }
+    .rain-column:nth-child(7) { --lx: 38%; --dur: 5.9s; --delay: -3.5s; }
+    .rain-column:nth-child(8) { --lx: 45%; --dur: 4.2s; --delay: -1.9s; --w: 4px; --h: 13px; }
+    .rain-column:nth-child(9) { --lx: 52%; --dur: 6.8s; --delay: -4.1s; }
+    .rain-column:nth-child(10) { --lx: 58%; --dur: 5.4s; --delay: -0.9s; --w: 3px; }
+    .rain-column:nth-child(11) { --lx: 64%; --dur: 8.2s; --delay: -2.4s; --h: 15px; }
+    .rain-column:nth-child(12) { --lx: 71%; --dur: 5.7s; --delay: -5s; }
+    .rain-column:nth-child(13) { --lx: 78%; --dur: 6.1s; --delay: -1.5s; --w: 5px; }
+    .rain-column:nth-child(14) { --lx: 85%; --dur: 4.5s; --delay: -3.9s; }
+    .rain-column:nth-child(15) { --lx: 91%; --dur: 7.3s; --delay: -0.3s; --w: 3px; --h: 9px; }
+    .rain-column:nth-child(16) { --lx: 96%; --dur: 6.9s; --delay: -2.1s; }
+    .rain-column:nth-child(17) { --lx: 5%; --dur: 9.1s; --delay: -4.8s; --w: 3px; }
+    .rain-column:nth-child(18) { --lx: 27%; --dur: 8.6s; --delay: -6.2s; --h: 16px; }
+    .rain-column:nth-child(19) { --lx: 49%; --dur: 10.2s; --delay: -7.5s; --w: 4px; }
+    .rain-column:nth-child(20) { --lx: 74%; --dur: 9.8s; --delay: -3.7s; }
+    .rain-column:nth-child(21) { --lx: 83%; --dur: 11s; --delay: -8.9s; --w: 3px; }
 
     @media (prefers-reduced-motion: reduce) {
       .drop { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; opacity: 0.15; transform: translate3d(-50%, 35vh, 0); }
-      .splash-impact::before,
-      .splash-impact::after { animation: none !important; opacity: 0 !important; }
+      .wave-band,
+      .impact-ripple { animation: none !important; opacity: 0 !important; }
       .ceiling-highlight { opacity: 0.4; }
     }
 
@@ -310,6 +314,8 @@
     .input-error { border-color: #e53e3e !important; }
 
     .error-msg { color: #c53030; font-size: 12px; margin-top: -10px; margin-bottom: 12px; font-weight: 500; text-shadow: 0 1px 0 rgba(255,255,255,0.4); }
+
+    .success-msg { color: #047857; font-size: 13px; margin-bottom: 12px; font-weight: 500; text-shadow: 0 1px 0 rgba(255,255,255,0.4); }
 
     .password-row {
       display: flex;
@@ -397,25 +403,30 @@
 
 <div class="water-scene" aria-hidden="true">
   <div class="ceiling-highlight"></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
-  <div class="rain-column"><span class="drop"></span><div class="splash-impact"></div></div>
+  <div class="water-surface">
+    <span class="wave-band front"></span>
+    <span class="wave-band back"></span>
+    <div class="surface-ripples" id="surface-ripples"></div>
+  </div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
+  <div class="rain-column"><span class="drop"></span></div>
 </div>
 
 <div class="card">
@@ -432,7 +443,9 @@
   <h1>Admin Login</h1>
   <p class="subtitle">Welcome back. Enter your credentials to access your account</p>
 
-  <!-- Show error from server if any -->
+  <% if (typeof message !== 'undefined' && message) { %>
+    <p class="success-msg"><%= message %></p>
+  <% } %>
   <% if (typeof error !== 'undefined' && error) { %>
     <p class="error-msg"><%= error %></p>
   <% } %>
@@ -469,13 +482,13 @@
       <label for="remember">Keep me signed in</label>
     </div>
 
-    <button type="submit" class="btn-continue">Continue</button>
+    <button type="submit" class="btn-continue">LOGIN</button>
 
   </form>
 
   <p class="footer-text">
-    Don't have an Account?
-    <a href="/contact-admin">Contact admin here</a>
+    Don't have an account?
+    <a href="/signup">Sign up here</a>
   </p>
 
 </div>
@@ -485,6 +498,52 @@
     const pw = document.getElementById('password');
     pw.type = pw.type === 'password' ? 'text' : 'password';
   }
+
+  function parseCssTimeToMs(value) {
+    const raw = (value || '').trim();
+    if (!raw) return 0;
+    if (raw.endsWith('ms')) return Number.parseFloat(raw);
+    if (raw.endsWith('s')) return Number.parseFloat(raw) * 1000;
+    return Number.parseFloat(raw) || 0;
+  }
+
+  function nextImpactDelayMs(durationMs, delayMs) {
+    if (durationMs <= 0) return 0;
+    if (delayMs >= 0) return delayMs + durationMs;
+    const elapsed = ((-delayMs % durationMs) + durationMs) % durationMs;
+    return elapsed === 0 ? durationMs : (durationMs - elapsed);
+  }
+
+  function createImpactRipple(container, xPercent) {
+    const ripple = document.createElement('span');
+    ripple.className = 'impact-ripple';
+    ripple.style.setProperty('--x', xPercent);
+    ripple.style.setProperty('--size', `${12 + Math.random() * 7}px`);
+    container.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+  }
+
+  function setupRainSurfaceInteraction() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rippleContainer = document.getElementById('surface-ripples');
+    const columns = document.querySelectorAll('.water-scene .rain-column');
+    if (!rippleContainer || !columns.length) return;
+
+    columns.forEach((column) => {
+      const style = getComputedStyle(column);
+      const xPercent = style.getPropertyValue('--lx').trim() || '50%';
+      const durationMs = parseCssTimeToMs(style.getPropertyValue('--dur')) || 6000;
+      const delayMs = parseCssTimeToMs(style.getPropertyValue('--delay'));
+      const firstImpact = nextImpactDelayMs(durationMs, delayMs);
+
+      window.setTimeout(() => {
+        createImpactRipple(rippleContainer, xPercent);
+        window.setInterval(() => createImpactRipple(rippleContainer, xPercent), durationMs);
+      }, firstImpact);
+    });
+  }
+
+  setupRainSurfaceInteraction();
 </script>
 
 </body>

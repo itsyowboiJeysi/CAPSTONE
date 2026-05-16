@@ -217,28 +217,97 @@
       align-items: center;
       margin-bottom: 1.4rem;
     }
-    .page-title { font-size: 18px; font-weight: 700; color: #1a1a2e; }
-    .device-name {
+    .page-title {
+      grid-column: 2;
       font-size: 28px;
       font-weight: 800;
       color: #1a1a2e;
       text-align: center;
       letter-spacing: 1px;
     }
-    .header-right {
-      display: flex;
-      justify-content: flex-end;
-    }
-    .header-links a {
-      font-size: 14px;
-      color: #6b7280;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .header-links a:hover { color: #1a8fc1; }
-    .header-links-popover-wrap {
-      position: relative;
+
+    .history-btn {
       display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      color: #0f2942;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background .15s, border-color .15s, color .15s;
+      cursor: pointer;
+    }
+
+    .history-btn:hover {
+      background: rgba(255, 255, 255, 0.75);
+      border-color: rgba(26, 143, 193, 0.5);
+      color: #065a73;
+    }
+
+    .history-wrap {
+      grid-column: 3;
+      justify-self: end;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .history-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      min-width: 320px;
+      max-width: 360px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(238, 248, 254, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 14px 28px rgba(0, 30, 50, 0.18);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display: none;
+      z-index: 70;
+    }
+
+    .history-menu.show {
+      display: block;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.48);
+      border-radius: 9px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      color: #142434;
+    }
+
+    .history-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .history-item-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #4f6171;
+      margin-bottom: 4px;
+    }
+
+    .history-item-metrics {
+      font-size: 12px;
+      line-height: 1.45;
+      color: #0d2438;
+      font-weight: 600;
     }
     .devices-popover {
       position: absolute;
@@ -330,24 +399,21 @@
       flex-wrap: wrap;
     }
     .chart-title { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-right: auto; }
-    .period-btn {
-      background: none;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      padding: 4px 12px;
+    .date-sort-label {
       font-size: 12px;
-      color: #6b7280;
-      cursor: pointer;
-      transition: all .15s;
-    }
-    .period-btn.active {
-      background: #fff;
-      border-color: #1a1a2e;
-      color: #1a1a2e;
       font-weight: 600;
+      color: #4f6171;
     }
-    .period-btn:hover:not(.active) { border-color: #1a8fc1; color: #1a8fc1; }
-    .chart-wrap { position: relative; height: 220px; }
+    .date-sort-select {
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: #1a1a2e;
+      background: rgba(255, 255, 255, 0.75);
+      outline: none;
+    }
+    .chart-wrap { position: relative; height: 170px; }
 
     /* Parameter status metric grid */
     .parameter-grid {
@@ -472,24 +538,11 @@
     <div class="topbar-action" data-popover-wrap>
       <div class="topbar-icon" data-popover-toggle="alerts">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="badge badge-indigo">6</span>
+        <span class="badge badge-indigo" data-etubig-alert-badge>0</span>
       </div>
       <div class="topbar-popover" data-popover-id="alerts">
         <div class="popover-title">Notifications</div>
-        <ul class="popover-list">
-          <li class="popover-item">
-            <strong>pH Warning</strong>
-            <span>Reservoir 2 recorded pH 6.4 at 08:45 AM.</span>
-          </li>
-          <li class="popover-item">
-            <strong>Flow Update</strong>
-            <span>Main line flow increased by 12% this hour.</span>
-          </li>
-          <li class="popover-item">
-            <strong>Reminder</strong>
-            <span>Monthly compliance report is due today.</span>
-          </li>
-        </ul>
+        <ul class="popover-list" data-etubig-notifications></ul>
       </div>
     </div>
 
@@ -497,10 +550,10 @@
       <div class="avatar" data-popover-toggle="admin">A</div>
       <div class="topbar-popover avatar-panel" data-popover-id="admin">
         <div class="avatar-head">
-          <div class="avatar-chip">A</div>
+          <div class="avatar-chip" data-etubig-user-chip>A</div>
           <div class="avatar-meta">
-            <strong>Admin User</strong>
-            <span>admin@etubig.local</span>
+            <strong data-etubig-user-name>Admin User</strong>
+            <span data-etubig-user-email>admin@etubig.local</span>
           </div>
         </div>
         <div class="avatar-actions">
@@ -515,15 +568,20 @@
   <div class="content">
     <!-- Page Header -->
     <div class="page-header">
-      <div class="page-title">Water Quality</div>
-      <div class="device-name" id="deviceName">ESP DEVICE NAME</div>
-      <div class="header-right">
-        <div class="header-links">
-          <div class="header-links-popover-wrap" data-device-wrap>
-            <a href="#" id="devicesLink">Devices</a>
-            <div class="devices-popover" id="devicesPopover"></div>
-          </div>
-        </div>
+      <div class="page-title">Water Quality History</div>
+      <div class="history-wrap" data-history-wrap>
+        <button type="button" id="historyToggle" class="history-btn" aria-expanded="false" aria-controls="historyMenu">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7h18"></path>
+            <path d="M3 12h18"></path>
+            <path d="M3 17h18"></path>
+            <circle cx="7" cy="7" r="1.5"></circle>
+            <circle cx="12" cy="12" r="1.5"></circle>
+            <circle cx="17" cy="17" r="1.5"></circle>
+          </svg>
+          History
+        </button>
+        <div id="historyMenu" class="history-menu" role="menu" aria-label="Recent water quality scans"></div>
       </div>
     </div>
 
@@ -542,8 +600,8 @@
         <div class="metric-value" data-metric-value="temperature">23<span class="metric-unit">°C</span></div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Flow Rate</div>
-        <div class="metric-value" data-metric-value="flow">50<span class="metric-unit">L/min</span></div>
+        <div class="metric-label">Ammonia</div>
+        <div class="metric-value" data-metric-value="ammonia">0.3<span class="metric-unit">mg/L</span></div>
       </div>
     </div>
 
@@ -552,10 +610,11 @@
       <div class="chart-card">
         <div class="chart-header">
           <span class="chart-title">Water Quality Reports</span>
-          <button class="period-btn active" onclick="switchPeriod(this,'30m')">30 mins</button>
-          <button class="period-btn" onclick="switchPeriod(this,'6m')">6 Months</button>
-          <button class="period-btn" onclick="switchPeriod(this,'30d')">30 Days</button>
-          <button class="period-btn" onclick="switchPeriod(this,'7d')">7 Days</button>
+          <label for="dateSortSelect" class="date-sort-label">Sort by Date</label>
+          <select id="dateSortSelect" class="date-sort-select">
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
         </div>
         <div class="chart-wrap">
           <canvas id="qualityChart"></canvas>
@@ -580,10 +639,10 @@
         <div class="parameter-status"><span class="status-dot"></span><span data-param-text="temperature">Normal</span></div>
         <div class="parameter-threshold">Normal range: 20 - 28 C</div>
       </div>
-      <div class="parameter-card" data-param-card="flow">
-        <div class="metric-label">Flow Rate Status</div>
-        <div class="parameter-status"><span class="status-dot"></span><span data-param-text="flow">Normal</span></div>
-        <div class="parameter-threshold">Normal range: 40 - 65 L/min</div>
+      <div class="parameter-card" data-param-card="ammonia">
+        <div class="metric-label">Ammonia Status</div>
+        <div class="parameter-status"><span class="status-dot"></span><span data-param-text="ammonia">Normal</span></div>
+        <div class="parameter-threshold">Normal range: <= 0.5 mg/L</div>
       </div>
     </div>
 
@@ -601,6 +660,8 @@
   </div>
 </div>
 
+<%- include('partials/etubig-data') %>
+<script src="/js/etubig-ui.js"></script>
 <script>
   // Clock
   function updateClock() {
@@ -615,161 +676,79 @@
   const months12 = ['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
   const days7    = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
-  const periodData = {
-    '30m': {
-      labels: Array.from({length:30}, (_,i) => i%5===0 ? `${i}m` : ''),
-      datasets: [
-        Array.from({length:30}, (_,i) => 300 + Math.sin(i*0.3)*80 + Math.random()*20),
-        Array.from({length:30}, (_,i) => 190 + Math.sin(i*0.4)*50 + Math.random()*15),
-        Array.from({length:30}, (_,i) => 110 + Math.sin(i*0.5)*30 + Math.random()*10),
-      ]
-    },
-    '6m': {
-      labels: ['Aug','Sep','Oct','Nov','Dec','Jan'],
-      datasets: [
-        [430,480,520,490,560,610],
-        [280,320,350,330,370,410],
-        [160,180,200,185,210,230],
-      ]
-    },
-    '30d': {
-      labels: Array.from({length:30}, (_,i) => i%5===0 ? `D${i+1}` : ''),
-      datasets: [
-        Array.from({length:30}, () => Math.floor(350+Math.random()*200)),
-        Array.from({length:30}, () => Math.floor(200+Math.random()*100)),
-        Array.from({length:30}, () => Math.floor(100+Math.random()*60)),
-      ]
-    },
-    '7d': {
-      labels: days7,
-      datasets: [
-        [490,510,525,480,560,545,610],
-        [330,345,360,320,380,365,410],
-        [185,195,205,175,215,200,230],
-      ]
-    },
-  };
-  const deviceProfiles = [
-    { name: 'ESP-32 Main Tank', topic: 'etubig/main-tank/status', periodData },
-    {
-      name: 'ESP-32 Zone B',
-      topic: 'etubig/zone-b/status',
-      periodData: {
-        '30m': {
-          labels: Array.from({length:30}, (_,i) => i%5===0 ? `${i}m` : ''),
-          datasets: [
-            Array.from({length:30}, (_,i) => 270 + Math.sin(i*0.28)*75 + Math.random()*18),
-            Array.from({length:30}, (_,i) => 240 + Math.sin(i*0.35)*55 + Math.random()*20),
-            Array.from({length:30}, (_,i) => 140 + Math.sin(i*0.48)*34 + Math.random()*10),
-          ]
-        },
-        '6m': { labels: ['Aug','Sep','Oct','Nov','Dec','Jan'], datasets: [[400,450,495,470,530,575],[300,340,360,350,390,430],[175,190,210,195,220,245]] },
-        '30d': { labels: Array.from({length:30}, (_,i) => i%5===0 ? `D${i+1}` : ''), datasets: [Array.from({length:30}, () => Math.floor(320+Math.random()*180)),Array.from({length:30}, () => Math.floor(220+Math.random()*120)),Array.from({length:30}, () => Math.floor(120+Math.random()*75))] },
-        '7d': { labels: days7, datasets: [[460,480,505,470,530,520,575],[345,350,370,335,395,380,430],[200,205,212,188,225,215,245]] },
-      }
-    },
-    {
-      name: 'ESP-8266 Intake',
-      topic: 'etubig/intake/status',
-      periodData: {
-        '30m': {
-          labels: Array.from({length:30}, (_,i) => i%5===0 ? `${i}m` : ''),
-          datasets: [
-            Array.from({length:30}, (_,i) => 350 + Math.sin(i*0.22)*65 + Math.random()*14),
-            Array.from({length:30}, (_,i) => 140 + Math.sin(i*0.40)*32 + Math.random()*12),
-            Array.from({length:30}, (_,i) => 95 + Math.sin(i*0.56)*25 + Math.random()*8),
-          ]
-        },
-        '6m': { labels: ['Aug','Sep','Oct','Nov','Dec','Jan'], datasets: [[470,500,540,515,565,605],[210,230,245,225,255,280],[140,155,168,150,172,190]] },
-        '30d': { labels: Array.from({length:30}, (_,i) => i%5===0 ? `D${i+1}` : ''), datasets: [Array.from({length:30}, () => Math.floor(380+Math.random()*170)),Array.from({length:30}, () => Math.floor(140+Math.random()*85)),Array.from({length:30}, () => Math.floor(85+Math.random()*55))] },
-        '7d': { labels: days7, datasets: [[520,530,550,525,580,570,605],[225,235,248,220,260,250,280],[165,168,176,160,182,175,190]] },
-      }
-    },
-  ];
+  const deviceProfiles = ETUBIG.deviceProfiles || [];
 
-  const colorSet = [
-    { line: '#2d3ac8', fill: 'rgba(45,58,200,0.12)' },
-    { line: '#6b8cff', fill: 'rgba(107,140,255,0.09)' },
-    { line: '#a5b4fc', fill: 'rgba(165,180,252,0.07)' },
-  ];
-
-  function makeDatasets(d) {
-    return d.datasets.map((data, i) => ({
-      data,
-      borderColor: colorSet[i].line,
-      backgroundColor: colorSet[i].fill,
-      fill: true,
-      tension: 0.5,
-      borderWidth: i === 0 ? 2.5 : 1.5,
-      pointRadius: 0,
-    }));
-  }
+  const pieColors = ['#2d3ac8', '#6b8cff', '#38bdf8', '#14b8a6'];
 
   const ctx = document.getElementById('qualityChart').getContext('2d');
-  const deviceNameEl = document.getElementById('deviceName');
-  let activeDevice = deviceProfiles[0];
-  let currentPeriod = '30m';
+  const historyToggle = document.getElementById('historyToggle');
+  const historyMenu = document.getElementById('historyMenu');
+  const dateSortSelect = document.getElementById('dateSortSelect');
+  let activeDevice = deviceProfiles[0] || { metrics: {}, periodData: {} };
+  let currentPeriod = '30d';
+  const m0 = activeDevice.metrics || {};
   const qualityChart = new Chart(ctx, {
-    type: 'line',
+    type: 'pie',
     data: {
-      labels: activeDevice.periodData['30m'].labels,
-      datasets: makeDatasets(activeDevice.periodData['30m']),
+      labels: ['pH', 'Turbidity', 'Temperature', 'Ammonia'],
+      datasets: [{
+        data: [m0.ph || 0, m0.turbidity || 0, m0.temperature || 0, m0.ammonia || 0],
+        backgroundColor: pieColors,
+        borderColor: '#ffffff',
+        borderWidth: 1.5,
+      }],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: { duration: 400 },
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#9aa3af', font: { size: 11 } } },
-        y: {
-          display: true,
-          beginAtZero: true,
-          grid: { color: '#eef2f7' },
-          ticks: {
-            color: '#9aa3af',
-            font: { size: 11 },
-            precision: 0
-          }
-        },
-      },
+      plugins: { legend: { display: true, position: 'bottom' } },
     }
   });
-
-  function switchPeriod(btn, key) {
-    btn.closest('.chart-header').querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentPeriod = key;
-    const d = activeDevice.periodData[key];
-    qualityChart.data.labels = d.labels;
-    qualityChart.data.datasets = makeDatasets(d);
-    qualityChart.update();
-    syncMetricCardsFromChart();
-  }
 
   // Keep top metric cards synced to chart's latest points
   function setMetricValue(key, value, unit) {
     const el = document.querySelector(`[data-metric-value="${key}"]`);
     if (!el || !Number.isFinite(value)) return;
-    const rounded = key === 'temperature' || key === 'flow' ? Math.round(value) : value.toFixed(1);
+    const rounded = key === 'temperature' ? Math.round(value) : value.toFixed(1);
     el.innerHTML = `${rounded}<span class="metric-unit">${unit}</span>`;
   }
 
-  function syncMetricCardsFromChart() {
-    const ds = qualityChart.data.datasets;
-    if (!ds || ds.length < 3) return;
-
-    const ph = ds[0].data[ds[0].data.length - 1];
-    const turbidity = ds[1].data[ds[1].data.length - 1];
-    const temperature = ds[2].data[ds[2].data.length - 1];
-    const flow = 35 + (turbidity * 0.7);
-
-    setMetricValue('ph', ph / 80 + 3, 'pH');
-    setMetricValue('turbidity', turbidity / 90, 'NTU');
-    setMetricValue('temperature', temperature / 6, '°C');
-    setMetricValue('flow', flow, 'L/min');
-
+  function applyDeviceMetrics(device) {
+    if (!device || !device.metrics) return;
+    const m = device.metrics;
+    setMetricValue('ph', m.ph, 'pH');
+    setMetricValue('turbidity', m.turbidity, 'NTU');
+    setMetricValue('temperature', m.temperature, '°C');
+    setMetricValue('ammonia', m.ammonia, 'mg/L');
+    qualityChart.data.datasets[0].data = [m.ph || 0, m.turbidity || 0, m.temperature || 0, m.ammonia || 0];
+    qualityChart.update();
     updateParameterStatus();
+  }
+
+  const scanHistory = ETUBIG.scanHistory || [];
+
+  function renderScanHistory() {
+    if (!historyMenu) return;
+    historyMenu.innerHTML = scanHistory
+      .map((scan) => `
+        <div class="history-item">
+          <div class="history-item-head">
+            <span>${scan.timestamp}</span>
+            <span>${scan.source}</span>
+          </div>
+          <div class="history-item-metrics">
+            pH ${(scan.ph ?? 0).toFixed(1)} | Turbidity ${(scan.turbidity ?? 0).toFixed(1)} NTU | Temp ${scan.temperature ?? '—'}°C | Flow ${scan.flow ?? '—'} L/min
+          </div>
+        </div>
+      `)
+      .join('');
+  }
+
+  renderScanHistory();
+
+  if (dateSortSelect) {
+    dateSortSelect.addEventListener('change', () => applyDeviceMetrics(activeDevice));
   }
 
   // Auto status by parameter based on metric values
@@ -799,9 +778,9 @@
       return 'normal';
     }
 
-    if (key === 'flow') {
-      if (value < 30 || value > 75) return 'unsafe';
-      if (value < 40 || value > 65) return 'warning';
+    if (key === 'ammonia') {
+      if (value > 1.0) return 'unsafe';
+      if (value > 0.5) return 'warning';
       return 'normal';
     }
 
@@ -815,7 +794,7 @@
   }
 
   function updateParameterStatus() {
-    const keys = ['ph', 'turbidity', 'temperature', 'flow'];
+    const keys = ['ph', 'turbidity', 'temperature', 'ammonia'];
     let overall = 'normal';
     const severity = { normal: 0, warning: 1, unsafe: 2 };
 
@@ -838,22 +817,13 @@
     if (combinedStatus) combinedStatus.textContent = labelFromState(overall);
   }
 
-  syncMetricCardsFromChart();
+  applyDeviceMetrics(activeDevice);
   updateParameterStatus();
   setInterval(updateParameterStatus, 3000);
 
   // Topbar popovers (messages, notification + admin profile)
   const popovers = document.querySelectorAll('[data-popover-id]');
   const toggles = document.querySelectorAll('[data-popover-toggle]');
-  const devicesLink = document.getElementById('devicesLink');
-  const devicesPopover = document.getElementById('devicesPopover');
-  const activeEspDevices = deviceProfiles;
-
-  if (devicesPopover) {
-    devicesPopover.innerHTML = activeEspDevices
-      .map((device, index) => `<button type="button" class="device-item-btn" data-device-index="${index}"><div class="device-item"><strong>${device.name}</strong><span>MQTT: ${device.topic}</span></div></button>`)
-      .join('');
-  }
 
   function closeAllPopovers() {
     popovers.forEach((popover) => popover.classList.remove('show'));
@@ -870,28 +840,13 @@
     });
   });
 
-  if (devicesLink && devicesPopover) {
-    devicesLink.addEventListener('click', (event) => {
+  if (historyToggle && historyMenu) {
+    historyToggle.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
-      const isOpen = devicesPopover.classList.contains('show');
-      closeAllPopovers();
-      devicesPopover.classList.toggle('show', !isOpen);
-    });
-
-    devicesPopover.addEventListener('click', (event) => {
-      const btn = event.target.closest('[data-device-index]');
-      if (!btn) return;
-      const idx = Number(btn.getAttribute('data-device-index'));
-      if (Number.isNaN(idx) || !activeEspDevices[idx]) return;
-      activeDevice = activeEspDevices[idx];
-      if (deviceNameEl) deviceNameEl.textContent = activeDevice.name;
-      const d = activeDevice.periodData[currentPeriod] || activeDevice.periodData['30m'];
-      qualityChart.data.labels = d.labels;
-      qualityChart.data.datasets = makeDatasets(d);
-      qualityChart.update();
-      syncMetricCardsFromChart();
-      devicesPopover.classList.remove('show');
+      const isOpen = historyMenu.classList.contains('show');
+      historyMenu.classList.toggle('show', !isOpen);
+      historyToggle.setAttribute('aria-expanded', String(!isOpen));
     });
   }
 
@@ -899,12 +854,12 @@
     if (!event.target.closest('[data-popover-wrap]')) {
       closeAllPopovers();
     }
-    if (!event.target.closest('[data-device-wrap]')) {
-      devicesPopover && devicesPopover.classList.remove('show');
+    if (!event.target.closest('[data-history-wrap]') && historyMenu && historyToggle) {
+      historyMenu.classList.remove('show');
+      historyToggle.setAttribute('aria-expanded', 'false');
     }
   });
 
-  if (deviceNameEl) deviceNameEl.textContent = activeDevice.name;
 </script>
 </body>
 </html>

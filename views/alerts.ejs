@@ -465,34 +465,21 @@
     <div class="topbar-action" data-popover-wrap>
       <div class="topbar-icon" data-popover-toggle="alerts">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="badge">6</span>
+        <span class="badge" data-etubig-alert-badge>0</span>
       </div>
       <div class="topbar-popover" data-popover-id="alerts">
         <div class="popover-title">Notifications</div>
-        <ul class="popover-list">
-          <li class="popover-item">
-            <strong>High Turbidity</strong>
-            <span>Sensor reported 6.8 NTU above safe limit.</span>
-          </li>
-          <li class="popover-item">
-            <strong>pH Warning</strong>
-            <span>pH level rose to 9.2 in Zone A line.</span>
-          </li>
-          <li class="popover-item">
-            <strong>Temperature Spike</strong>
-            <span>42C anomaly has been marked resolved.</span>
-          </li>
-        </ul>
+        <ul class="popover-list" data-etubig-notifications></ul>
       </div>
     </div>
     <div class="topbar-action" data-popover-wrap>
       <div class="avatar" data-popover-toggle="admin">A</div>
       <div class="topbar-popover avatar-panel" data-popover-id="admin">
         <div class="avatar-head">
-          <div class="avatar-chip">A</div>
+          <div class="avatar-chip" data-etubig-user-chip>A</div>
           <div class="avatar-meta">
-            <strong>Admin User</strong>
-            <span>admin@etubig.local</span>
+            <strong data-etubig-user-name>Admin User</strong>
+            <span data-etubig-user-email>admin@etubig.local</span>
           </div>
         </div>
         <div class="avatar-actions">
@@ -525,11 +512,18 @@
           </tr>
         </thead>
         <tbody id="alertsTableBody">
-          <tr>
-            <td>High Turbidity Detected</td>
-            <td>Value: 6.8 NTU (Above safe limit)</td>
-            <td><span class="status-pill status-active"><span class="status-icon">X</span>ACTIVE</span></td>
-            <td>Dec 30, 09:42 PM</td>
+          <% (etubig.alerts || []).forEach(function(a) { %>
+          <tr data-alert-id="<%= a.id %>">
+            <td><%= a.title %></td>
+            <td><%= a.description %></td>
+            <td>
+              <% if (a.status === 'resolved') { %>
+                <span class="status-pill status-resolved"><span class="status-icon">✓</span>RESOLVED</span>
+              <% } else { %>
+                <span class="status-pill status-active"><span class="status-icon">X</span>ACTIVE</span>
+              <% } %>
+            </td>
+            <td><%= a.displayDate %></td>
             <td class="action-cell">
               <button type="button" class="action-btn" data-row-action>...</button>
               <div class="action-menu">
@@ -539,34 +533,7 @@
               </div>
             </td>
           </tr>
-          <tr>
-            <td>pH Level Out of Range</td>
-            <td>Value: 9.2 pH (Too alkaline)</td>
-            <td><span class="status-pill status-active"><span class="status-icon">X</span>ACTIVE</span></td>
-            <td>Apr 22, 09:58 AM</td>
-            <td class="action-cell">
-              <button type="button" class="action-btn" data-row-action>...</button>
-              <div class="action-menu">
-                <button type="button" class="action-item" data-action="delete">Delete alert</button>
-                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
-                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>Temperature Spike Detected</td>
-            <td>Value: 42C</td>
-            <td><span class="status-pill status-resolved"><span class="status-icon">✓</span>RESOLVED</span></td>
-            <td>Apr 21, 04:12 PM</td>
-            <td class="action-cell">
-              <button type="button" class="action-btn" data-row-action>...</button>
-              <div class="action-menu">
-                <button type="button" class="action-item" data-action="delete">Delete alert</button>
-                <button type="button" class="action-item" data-action="pdf">Export to PDF</button>
-                <button type="button" class="action-item" data-action="time-data">View data at this time</button>
-              </div>
-            </td>
-          </tr>
+          <% }); %>
         </tbody>
       </table>
     </div>
@@ -582,6 +549,8 @@
     <div class="time-data-grid" id="timeDataGrid"></div>
   </div>
 </div>
+<%- include('partials/etubig-data') %>
+<script src="/js/etubig-ui.js"></script>
 <script>
   const popovers = document.querySelectorAll('[data-popover-id]');
   const toggles = document.querySelectorAll('[data-popover-toggle]');
@@ -722,16 +691,20 @@
       const alertTime = row.children[3].textContent.trim();
 
       if (action === 'delete') {
-        row.remove();
+        const alertId = row.getAttribute('data-alert-id');
+        if (alertId) {
+          fetch(`/api/alerts/${alertId}`, { method: 'DELETE' })
+            .then(() => row.remove())
+            .catch(() => row.remove());
+        } else {
+          row.remove();
+        }
       } else if (action === 'pdf') {
         window.print();
       } else if (action === 'time-data') {
-        const mockSnapshot = {
-          'High Turbidity Detected': { 'Turbidity': '6.8 NTU', 'pH Level': '7.4 pH', 'Temperature': '29 C', 'Flow Rate': '52 L/min' },
-          'pH Level Out of Range': { 'pH Level': '9.2 pH', 'Turbidity': '1.9 NTU', 'Temperature': '26 C', 'Flow Rate': '49 L/min' },
-          'Temperature Spike Detected': { 'Temperature': '42 C', 'pH Level': '7.1 pH', 'Turbidity': '2.5 NTU', 'Flow Rate': '45 L/min' }
-        };
-        const values = mockSnapshot[alertName] || { 'Description': alertDesc, 'Timestamp': alertTime };
+        const alertId = row.getAttribute('data-alert-id');
+        const snapshots = (window.ETUBIG && ETUBIG.alertSnapshots) || {};
+        const values = (alertId && snapshots[alertId]) || { Description: alertDesc, Timestamp: alertTime };
         if (timeDataSub) timeDataSub.textContent = `${alertName} - ${alertTime}`;
         if (timeDataGrid) {
           timeDataGrid.innerHTML = Object.entries(values)

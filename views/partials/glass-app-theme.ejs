@@ -11,10 +11,10 @@
 
   /* Shell */
   .sidebar {
-    background: rgba(255, 255, 255, 0.18);
-    backdrop-filter: blur(22px) saturate(165%);
-    -webkit-backdrop-filter: blur(22px) saturate(165%);
-    border-right-color: rgba(255, 255, 255, 0.28);
+    background: rgba(233, 245, 252, 0.16);
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    border-right-color: rgba(255, 255, 255, 0.24);
     box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08);
   }
 
@@ -53,22 +53,22 @@
   }
 
   .topbar {
-    background: rgba(255, 255, 255, 0.16);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
-    border-bottom-color: rgba(255, 255, 255, 0.26);
+    background: rgba(233, 245, 252, 0.15);
+    backdrop-filter: blur(18px) saturate(148%);
+    -webkit-backdrop-filter: blur(18px) saturate(148%);
+    border-bottom-color: rgba(255, 255, 255, 0.22);
   }
 
   .topbar-icon {
-    background: rgba(255, 255, 255, 0.34);
-    border: 1px solid rgba(255, 255, 255, 0.42);
+    background: rgba(238, 249, 255, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.34);
     color: #124252;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
 
   .topbar-icon:hover {
-    background: rgba(255, 255, 255, 0.52);
+    background: rgba(238, 249, 255, 0.42);
     color: #053b50;
   }
 
@@ -134,13 +134,13 @@
   .search-box,
   .filter-btn,
   .time-data-item {
-    background: rgba(255, 255, 255, 0.52);
-    backdrop-filter: blur(20px) saturate(150%);
-    -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border-color: rgba(255, 255, 255, 0.55);
+    background: rgba(238, 248, 254, 0.4);
+    backdrop-filter: blur(18px) saturate(138%);
+    -webkit-backdrop-filter: blur(18px) saturate(138%);
+    border-color: rgba(255, 255, 255, 0.38);
     box-shadow:
-      0 8px 32px rgba(0, 30, 50, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+      0 8px 28px rgba(0, 30, 50, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45);
     color: #142434;
   }
 
@@ -174,7 +174,7 @@
   .metric-label,
   .status-label,
   .stat-label {
-    color: #5c6b7a;
+    color: #4f6171;
   }
 
   .metric-value,
@@ -183,7 +183,12 @@
   .potability-status,
   .chart-title,
   .potability-title {
-    color: #0f2942;
+    color: #0d2438;
+  }
+
+  .chart-wrap canvas,
+  .chart-wrap-full canvas {
+    filter: contrast(1.08) saturate(1.04);
   }
 
   thead th {

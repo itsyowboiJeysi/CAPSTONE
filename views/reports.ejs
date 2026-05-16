@@ -192,7 +192,7 @@
 
     .reports-layout {
       display: grid;
-      grid-template-columns: 260px 1fr;
+      grid-template-columns: minmax(280px, 320px) 1fr;
       gap: 1rem;
     }
     .card {
@@ -204,25 +204,115 @@
     .panel-title { font-size: 14px; font-weight: 700; margin-bottom: .7rem; }
     .data-list { display: flex; flex-direction: column; gap: .5rem; }
     .device-picker { position: relative; }
-    .data-pill {
-      border: 1px dashed #93c5e8;
-      background: #f4fbff;
-      border-radius: 8px;
-      padding: .55rem .65rem;
+
+    .reports-history-wrap { position: relative; width: 100%; }
+    .reports-history-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: flex-start;
+      padding: 8px 12px;
+      border-radius: 10px;
       font-size: 12px;
-      color: #256a93;
+      font-weight: 600;
+      color: #0f2942;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(26, 143, 193, 0.28);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+      font-family: inherit;
+    }
+    .reports-history-btn:hover {
+      background: rgba(255, 255, 255, 0.8);
+      border-color: rgba(26, 143, 193, 0.5);
+      color: #065a73;
+    }
+    .reports-history-btn svg { flex-shrink: 0; }
+    .reports-history-panel {
+      display: none;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(238, 248, 254, 0.72);
+      border: 1px solid rgba(200, 230, 245, 0.95);
+      box-shadow: 0 10px 22px rgba(0, 30, 50, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .reports-history-panel.show { display: block; }
+    .reports-history-segments {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .reports-history-seg {
+      flex: 1;
+      border: 1px solid rgba(26, 143, 193, 0.25);
+      background: rgba(255, 255, 255, 0.45);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #2d5268;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .12s, border-color .12s;
+    }
+    .reports-history-seg.active {
+      background: rgba(26, 143, 193, 0.15);
+      border-color: rgba(26, 143, 193, 0.45);
+      color: #0f2942;
+    }
+    .reports-history-list {
+      max-height: 240px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .reports-history-item {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(200, 226, 240, 0.9);
+      border-radius: 9px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      color: #142434;
+    }
+    .reports-history-item:last-child { margin-bottom: 0; }
+    .reports-history-item.draggable-row {
       cursor: grab;
       user-select: none;
     }
-    .device-pill {
-      width: 100%;
-      text-align: left;
-      font-family: inherit;
-      border-style: solid;
-      cursor: pointer;
-      color: #1d5f87;
+    .reports-history-item.draggable-row:active { cursor: grabbing; }
+    .reports-history-item-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #4f6171;
+      margin-bottom: 4px;
+    }
+    .reports-history-item-metrics {
+      font-size: 11px;
+      line-height: 1.45;
+      color: #0d2438;
       font-weight: 600;
     }
+    .reports-history-drag-strip {
+      font-size: 11px;
+      font-weight: 600;
+      color: #154a61;
+      text-align: center;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px dashed rgba(26, 143, 193, 0.45);
+      background: rgba(232, 244, 251, 0.65);
+      cursor: grab;
+      user-select: none;
+    }
+    .reports-history-drag-strip:active { cursor: grabbing; }
     .device-menu {
       position: absolute;
       top: calc(100% + 6px);
@@ -316,6 +406,30 @@
       line-height: 1.5;
     }
     .editor.drop-target { border-color: #1a8fc1; background: #f2faff; }
+    .report-record-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: .65rem;
+      border: 1px solid #d7dde5;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .report-record-table th,
+    .report-record-table td {
+      border-bottom: 1px solid #e7edf3;
+      padding: 8px 10px;
+      font-size: 12px;
+      text-align: left;
+    }
+    .report-record-table th {
+      background: #f4f8fc;
+      color: #607084;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+    .report-record-table tr:last-child td {
+      border-bottom: none;
+    }
 
     .actions {
       margin-top: .8rem;
@@ -367,22 +481,19 @@
     <div class="topbar-action" data-popover-wrap>
       <div class="topbar-icon" data-popover-toggle="alerts">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="badge">6</span>
+        <span class="badge" data-etubig-alert-badge>0</span>
       </div>
       <div class="topbar-popover" data-popover-id="alerts">
         <div class="popover-title">Notifications</div>
-        <ul class="popover-list">
-          <li class="popover-item"><strong>Report Queue</strong><span>2 reports are waiting export.</span></li>
-          <li class="popover-item"><strong>Data Sync</strong><span>Latest sensor data loaded.</span></li>
-        </ul>
+        <ul class="popover-list" data-etubig-notifications></ul>
       </div>
     </div>
     <div class="topbar-action" data-popover-wrap>
       <div class="avatar" data-popover-toggle="admin">A</div>
       <div class="topbar-popover avatar-panel" data-popover-id="admin">
         <div class="avatar-head">
-          <div class="avatar-chip">A</div>
-          <div class="avatar-meta"><strong>Admin User</strong><span>admin@etubig.local</span></div>
+          <div class="avatar-chip" data-etubig-user-chip>A</div>
+          <div class="avatar-meta"><strong data-etubig-user-name>Admin User</strong><span data-etubig-user-email>admin@etubig.local</span></div>
         </div>
         <div class="avatar-actions">
           <a href="/settings">Account Settings</a>
@@ -403,28 +514,36 @@
 
     <div class="reports-layout">
       <div class="card">
-        <div class="panel-title">Data Fields (Drag to Report)</div>
+        <div class="panel-title">Sensor history</div>
         <div class="data-list">
-          <div class="device-picker">
-            <button class="data-pill device-pill" id="deviceNamePill" type="button" draggable="true" data-token="">Device Name</button>
-            <div class="device-menu" id="deviceMenu"></div>
+          <div class="reports-history-wrap" data-reports-history-wrap>
+            <button type="button" id="reportsHistoryToggle" class="reports-history-btn" aria-expanded="false" aria-controls="reportsHistoryPanel">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 7h18"></path>
+                <path d="M3 12h18"></path>
+                <path d="M3 17h18"></path>
+                <circle cx="7" cy="7" r="1.5"></circle>
+                <circle cx="12" cy="12" r="1.5"></circle>
+                <circle cx="17" cy="17" r="1.5"></circle>
+              </svg>
+              Water Quality &amp; Flow History
+            </button>
+            <div id="reportsHistoryPanel" class="reports-history-panel" role="region" aria-label="IoT readings for reports">
+              <div class="reports-history-segments">
+                <button type="button" class="reports-history-seg active" data-history-type="quality">Water quality</button>
+                <button type="button" class="reports-history-seg" data-history-type="flow">Flow rate</button>
+              </div>
+              <div id="reportsHistoryList" class="reports-history-list"></div>
+              <div draggable="true" id="reportsHistoryDragStrip" class="reports-history-drag-strip" title="Drag into report editor">
+                Drag into report · insert readings above as a table
+              </div>
+            </div>
           </div>
-          <div class="snapshot-controls">
-            <input id="snapshotDate" type="date" />
-            <input id="snapshotTime" type="time" />
-          </div>
-          <div class="data-pill" draggable="true" data-field="timestamp" data-token="">Timestamp</div>
-          <div class="data-pill" draggable="true" data-field="ph" data-token="">pH Level</div>
-          <div class="data-pill" draggable="true" data-field="turbidity" data-token="">Turbidity</div>
-          <div class="data-pill" draggable="true" data-field="temperature" data-token="">Temperature</div>
-          <div class="data-pill" draggable="true" data-field="flow" data-token="">Flow Rate</div>
-          <div class="data-pill" draggable="true" data-field="status" data-token="">Status</div>
-          <div class="data-pill" draggable="true" data-field="alerts" data-token="">Alert Summary</div>
         </div>
-        <p class="helper">Drag any data item into the report editor area. You can format text like in Word using the toolbar on the right.</p>
+        <p class="helper">Same layout as Dashboard. Drag any row into the report for a single-line insert, or use the dashed bar at the bottom of the panel for all rows.</p>
       </div>
 
-      <div class="card">
+      <div class="card" data-reports-work-area>
         <div class="form-grid">
           <div class="field">
             <label for="reportTitle">Report Title</label>
@@ -456,8 +575,8 @@
         </div>
         <div id="reportEditor" class="editor" contenteditable="true">
           <h3>Executive Summary</h3>
-          <p>Drag data fields from the left side and drop them here to build your report.</p>
-          <p>Current findings indicate stable quality metrics with manageable alert activity.</p>
+          <p>Open <strong>Water Quality &amp; Flow History</strong> on the left to preview readings.</p>
+          <p>Drag any reading row into this area for one row, or drag the dashed bar in the panel to insert the full table.</p>
         </div>
 
         <div class="actions">
@@ -469,6 +588,8 @@
   </div>
 </div>
 
+<%- include('partials/etubig-data') %>
+<script src="/js/etubig-ui.js"></script>
 <script>
   document.getElementById('reportDate').valueAsDate = new Date();
 
@@ -484,178 +605,239 @@
       if (targetPopover && !isOpen) targetPopover.classList.add('show');
     });
   });
-  document.addEventListener('click', (event) => {
-    if (!event.target.closest('[data-popover-wrap]')) closeAllPopovers();
-  });
-
   const editor = document.getElementById('reportEditor');
-  const dataPills = document.querySelectorAll('.data-pill');
-  const deviceNamePill = document.getElementById('deviceNamePill');
-  const deviceMenu = document.getElementById('deviceMenu');
-  const snapshotDateInput = document.getElementById('snapshotDate');
-  const snapshotTimeInput = document.getElementById('snapshotTime');
-  const deviceProfiles = {
-    'ESP-32 Main Tank': {
-      history: [
-        { iso: '2026-04-24T08:30', timestamp: 'Apr 24, 08:30 AM', ph: '7.0 pH', turbidity: '2.4 NTU', temperature: '24 C', flow: '47 L/min', status: 'Normal', alerts: '1 Active' },
-        { iso: '2026-04-25T14:20', timestamp: 'Apr 25, 02:20 PM', ph: '7.3 pH', turbidity: '2.0 NTU', temperature: '23 C', flow: '50 L/min', status: 'Normal', alerts: '2 Active' },
-        { iso: '2026-04-26T09:42', timestamp: 'Apr 26, 09:42 AM', ph: '7.2 pH', turbidity: '2.1 NTU', temperature: '23 C', flow: '50 L/min', status: 'Normal', alerts: '2 Active' }
-      ]
-    },
-    'ESP-32 Zone A': {
-      history: [
-        { iso: '2026-04-24T07:45', timestamp: 'Apr 24, 07:45 AM', ph: '7.1 pH', turbidity: '2.8 NTU', temperature: '25 C', flow: '53 L/min', status: 'Warning', alerts: '3 Active' },
-        { iso: '2026-04-25T16:10', timestamp: 'Apr 25, 04:10 PM', ph: '6.9 pH', turbidity: '3.2 NTU', temperature: '26 C', flow: '57 L/min', status: 'Warning', alerts: '4 Active' },
-        { iso: '2026-04-26T09:58', timestamp: 'Apr 26, 09:58 AM', ph: '6.8 pH', turbidity: '3.4 NTU', temperature: '26 C', flow: '58 L/min', status: 'Warning', alerts: '4 Active' }
-      ]
-    },
-    'ESP-8266 Intake': {
-      history: [
-        { iso: '2026-04-24T10:00', timestamp: 'Apr 24, 10:00 AM', ph: '7.6 pH', turbidity: '1.5 NTU', temperature: '22 C', flow: '42 L/min', status: 'Normal', alerts: '1 Active' },
-        { iso: '2026-04-25T11:30', timestamp: 'Apr 25, 11:30 AM', ph: '7.8 pH', turbidity: '1.3 NTU', temperature: '22 C', flow: '43 L/min', status: 'Normal', alerts: '1 Active' },
-        { iso: '2026-04-26T08:15', timestamp: 'Apr 26, 08:15 AM', ph: '7.9 pH', turbidity: '1.2 NTU', temperature: '22 C', flow: '44 L/min', status: 'Normal', alerts: '1 Active' }
-      ]
+  const reportsHistoryToggle = document.getElementById('reportsHistoryToggle');
+  const reportsHistoryPanel = document.getElementById('reportsHistoryPanel');
+  const reportsHistoryList = document.getElementById('reportsHistoryList');
+  const reportsHistoryDragStrip = document.getElementById('reportsHistoryDragStrip');
+  const deviceProfiles = ETUBIG.deviceProfiles || {};
+  let selectedHistoryType = 'quality';
+
+  function getAggregatedRows() {
+    return Object.entries(deviceProfiles)
+      .flatMap(([deviceName, profile]) =>
+        (profile.history || []).map((entry) => ({ ...entry, deviceName }))
+      )
+      .sort((a, b) => new Date(b.iso) - new Date(a.iso));
+  }
+
+  function formatFlowCell(entry) {
+    const flowNum = typeof entry.flow === 'string'
+      ? parseFloat(entry.flow.replace(/[^\d.]/g, ''))
+      : Number(entry.flow);
+    return Number.isFinite(flowNum)
+      ? `${flowNum.toFixed(2)} L/min`
+      : (entry.flow || '—');
+  }
+
+  function renderReportsHistoryPreview() {
+    if (!reportsHistoryList) return;
+    const rows = getAggregatedRows();
+    const preview = rows.slice(0, 12);
+    if (!preview.length) {
+      reportsHistoryList.innerHTML = '<div class="reports-history-item"><div class="reports-history-item-metrics">No history rows available.</div></div>';
+      return;
     }
-  };
-  let activeDevice = 'ESP-32 Main Tank';
-
-  function formatSelectedTimestamp(dateStr, timeStr) {
-    if (!dateStr || !timeStr) return '';
-    const dt = new Date(`${dateStr}T${timeStr}`);
-    if (Number.isNaN(dt.getTime())) return '';
-    const month = dt.toLocaleString('en-US', { month: 'short' });
-    const day = dt.getDate();
-    const year = dt.getFullYear();
-    const hh = dt.toLocaleString('en-US', { hour: '2-digit', hour12: false });
-    const mm = dt.toLocaleString('en-US', { minute: '2-digit', hour12: false });
-    const period = Number(hh) >= 12 ? 'PM' : 'AM';
-    const hr12 = ((Number(hh) + 11) % 12) + 1;
-    const hrText = hr12 < 10 ? `${hr12}` : `${hr12}`;
-    return `${month} ${day}, ${year} ${hrText}:${mm} ${period}`;
+    const histTypeAttr = selectedHistoryType === 'flow' ? 'flow' : 'quality';
+    reportsHistoryList.innerHTML = preview.map((entry, indexInFullList) => {
+      if (selectedHistoryType === 'flow') {
+        return `
+          <div class="reports-history-item draggable-row" draggable="true" data-history-index="${indexInFullList}" data-history-type="${histTypeAttr}">
+            <div class="reports-history-item-head">
+              <span>${entry.timestamp}</span>
+              <span>${entry.deviceName}</span>
+            </div>
+            <div class="reports-history-item-metrics">
+              Flow ${formatFlowCell(entry)}
+            </div>
+          </div>
+        `;
+      }
+      return `
+        <div class="reports-history-item draggable-row" draggable="true" data-history-index="${indexInFullList}" data-history-type="${histTypeAttr}">
+          <div class="reports-history-item-head">
+            <span>${entry.timestamp}</span>
+            <span>${entry.deviceName}</span>
+          </div>
+          <div class="reports-history-item-metrics">
+            ${entry.ph} | ${entry.turbidity} | ${entry.temperature} | Flow ${formatFlowCell(entry)}
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
-  function seededValue(seed) {
-    const x = Math.sin(seed) * 10000;
-    return x - Math.floor(x);
+  function ensureReportTable(type) {
+    const tableClass = type === 'flow' ? 'report-record-table report-flow-table' : 'report-record-table report-quality-table';
+    const selector = type === 'flow' ? '.report-flow-table' : '.report-quality-table';
+    let table = editor.querySelector(selector);
+    if (table) return table;
+
+    const tableHtml = type === 'flow'
+      ? `
+      <table class="${tableClass}">
+        <thead>
+          <tr>
+            <th>Date / Time</th>
+            <th>Device</th>
+            <th>Flow Rate (L/min)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    `
+      : `
+      <table class="${tableClass}">
+        <thead>
+          <tr>
+            <th>Date / Time</th>
+            <th>Device</th>
+            <th>pH</th>
+            <th>Turbidity</th>
+            <th>Temperature</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    `;
+    editor.insertAdjacentHTML('beforeend', tableHtml);
+    return editor.querySelector(selector);
   }
 
-  function buildMockSnapshot(deviceName, dateStr, timeStr) {
-    const history = deviceProfiles[deviceName]?.history || [];
-    const fallback = history.length ? history[history.length - 1] : null;
-    if (!fallback) return null;
-    if (!dateStr || !timeStr) return fallback;
-
-    const selectedTs = formatSelectedTimestamp(dateStr, timeStr);
-    const seedBase = new Date(`${dateStr}T${timeStr}`).getTime() / 60000;
-    const deviceSeed = deviceName.length * 31;
-    const s1 = seededValue(seedBase + deviceSeed);
-    const s2 = seededValue(seedBase + deviceSeed + 19);
-    const s3 = seededValue(seedBase + deviceSeed + 47);
-    const s4 = seededValue(seedBase + deviceSeed + 83);
-
-    const basePh = parseFloat(fallback.ph);
-    const baseTurbidity = parseFloat(fallback.turbidity);
-    const baseTemp = parseFloat(fallback.temperature);
-    const baseFlow = parseFloat(fallback.flow);
-
-    const ph = (basePh + (s1 - 0.5) * 0.6).toFixed(1);
-    const turbidity = (baseTurbidity + (s2 - 0.5) * 1.0).toFixed(1);
-    const temp = Math.max(18, Math.round(baseTemp + (s3 - 0.5) * 4));
-    const flow = Math.max(30, Math.round(baseFlow + (s4 - 0.5) * 10));
-    const alertCount = Math.max(0, Math.round((parseFloat(fallback.alerts) || 0) + (s2 - 0.5) * 2));
-
-    return {
-      timestamp: selectedTs,
-      ph: `${ph} pH`,
-      turbidity: `${turbidity} NTU`,
-      temperature: `${temp} C`,
-      flow: `${flow} L/min`,
-      status: parseFloat(turbidity) > 3 || parseFloat(ph) < 6.8 || parseFloat(ph) > 8.2 ? 'Warning' : 'Normal',
-      alerts: `${alertCount} Active`,
-    };
+  function appendSingleHistoryRow(entry, typeOverride) {
+    const t = typeOverride === 'flow' ? 'flow' : 'quality';
+    const table = ensureReportTable(t);
+    const tbody = table.querySelector('tbody');
+    const flowCell = formatFlowCell(entry);
+    const row = document.createElement('tr');
+    row.innerHTML = t === 'flow'
+      ? `
+        <td>${entry.timestamp}</td>
+        <td>${entry.deviceName}</td>
+        <td>${flowCell}</td>
+      `
+      : `
+        <td>${entry.timestamp}</td>
+        <td>${entry.deviceName}</td>
+        <td>${entry.ph}</td>
+        <td>${entry.turbidity}</td>
+        <td>${entry.temperature}</td>
+        <td>${entry.status}</td>
+      `;
+    tbody.appendChild(row);
   }
 
-  function findSnapshot(deviceName) {
-    const selectedDate = snapshotDateInput?.value || '';
-    const selectedTime = snapshotTimeInput?.value || '';
-    return buildMockSnapshot(deviceName, selectedDate, selectedTime);
-  }
+  function appendHistoryRows() {
+    const rows = getAggregatedRows();
+    if (!rows.length) return;
 
-  function applyDeviceProfile(deviceName) {
-    const profile = deviceProfiles[deviceName];
-    if (!profile) return;
-    activeDevice = deviceName;
-    const snapshot = findSnapshot(deviceName);
-    if (!snapshot) return;
+    const table = ensureReportTable(selectedHistoryType);
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
 
-    if (deviceNamePill) {
-      deviceNamePill.textContent = `Device Name: ${deviceName} ▾`;
-      deviceNamePill.setAttribute('data-token', `Device: ${deviceName}`);
-    }
-
-    document.querySelectorAll('[data-field]').forEach((pill) => {
-      const field = pill.getAttribute('data-field');
-      const value = snapshot[field];
-      if (!value) return;
-      const labels = {
-        timestamp: 'Timestamp',
-        ph: 'pH Level',
-        turbidity: 'Turbidity',
-        temperature: 'Temperature',
-        flow: 'Flow Rate',
-        status: 'Status',
-        alerts: 'Alert Count'
-      };
-      pill.setAttribute('data-token', `${labels[field]}: ${value}`);
-      pill.textContent = `${labels[field]}: ${value}`;
+    rows.forEach((entry) => {
+      appendSingleHistoryRow(entry, selectedHistoryType);
     });
   }
 
-  if (deviceMenu) {
-    deviceMenu.innerHTML = Object.keys(deviceProfiles)
-      .map((name) => `<button type="button" class="device-option" data-device="${name}">${name}</button>`)
-      .join('');
-  }
-
-  if (deviceNamePill && deviceMenu) {
-    deviceNamePill.addEventListener('click', () => {
-      deviceMenu.classList.toggle('show');
-    });
-    deviceMenu.addEventListener('click', (event) => {
-      const option = event.target.closest('[data-device]');
-      if (!option) return;
-      applyDeviceProfile(option.getAttribute('data-device'));
-      deviceMenu.classList.remove('show');
+  if (reportsHistoryToggle && reportsHistoryPanel) {
+    reportsHistoryToggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const isOpen = reportsHistoryPanel.classList.contains('show');
+      reportsHistoryPanel.classList.toggle('show', !isOpen);
+      reportsHistoryToggle.setAttribute('aria-expanded', String(!isOpen));
+      if (!isOpen) renderReportsHistoryPreview();
     });
   }
 
-  if (snapshotDateInput && snapshotTimeInput) {
-    const latest = deviceProfiles[activeDevice].history.slice(-1)[0];
-    snapshotDateInput.value = latest.iso.split('T')[0];
-    snapshotTimeInput.value = latest.iso.split('T')[1];
-    snapshotDateInput.addEventListener('change', () => applyDeviceProfile(activeDevice));
-    snapshotTimeInput.addEventListener('change', () => applyDeviceProfile(activeDevice));
-  }
-
-  applyDeviceProfile(activeDevice);
-
-  dataPills.forEach((pill) => {
-    pill.addEventListener('dragstart', (event) => {
-      event.dataTransfer.setData('text/plain', pill.getAttribute('data-token'));
+  document.querySelectorAll('.reports-history-seg').forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      document.querySelectorAll('.reports-history-seg').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedHistoryType = btn.getAttribute('data-history-type') || 'quality';
+      if (reportsHistoryPanel && reportsHistoryPanel.classList.contains('show')) {
+        renderReportsHistoryPreview();
+      }
     });
   });
 
-  editor.addEventListener('dragover', (event) => {
+  if (reportsHistoryDragStrip) {
+    reportsHistoryDragStrip.addEventListener('dragstart', (event) => {
+      event.stopPropagation();
+      event.dataTransfer.setData('text/plain', 'HISTORY_BLOCK');
+      event.dataTransfer.setData('application/x-report-field', 'historyType');
+      event.dataTransfer.effectAllowed = 'copy';
+    });
+  }
+
+  if (reportsHistoryList) {
+    reportsHistoryList.addEventListener('dragstart', (event) => {
+      const el = event.target.closest('.reports-history-item[data-history-index]');
+      if (!el) return;
+      const idx = parseInt(el.getAttribute('data-history-index'), 10);
+      const rowType = el.getAttribute('data-history-type') === 'flow' ? 'flow' : 'quality';
+      if (Number.isNaN(idx)) return;
+      event.stopPropagation();
+      event.dataTransfer.setData('application/x-report-history-row', JSON.stringify({ index: idx, type: rowType }));
+      event.dataTransfer.setData('text/plain', 'report-history-row');
+      event.dataTransfer.effectAllowed = 'copy';
+    });
+  }
+
+  let editorDragDepth = 0;
+  editor.addEventListener('dragenter', (event) => {
     event.preventDefault();
+    editorDragDepth += 1;
     editor.classList.add('drop-target');
   });
-  editor.addEventListener('dragleave', () => editor.classList.remove('drop-target'));
+  editor.addEventListener('dragover', (event) => {
+    event.preventDefault();
+  });
+  editor.addEventListener('dragleave', (event) => {
+    event.preventDefault();
+    editorDragDepth -= 1;
+    if (editorDragDepth <= 0) {
+      editorDragDepth = 0;
+      editor.classList.remove('drop-target');
+    }
+  });
+
+  editor.addEventListener('click', () => editor.focus());
+
   editor.addEventListener('drop', (event) => {
     event.preventDefault();
+    editorDragDepth = 0;
     editor.classList.remove('drop-target');
+
+    const rowPayload = event.dataTransfer.getData('application/x-report-history-row');
+    if (rowPayload) {
+      try {
+        const parsed = JSON.parse(rowPayload);
+        const idx = Number.isFinite(parsed.index) ? parsed.index : parseInt(parsed.index, 10);
+        const rowType = parsed.type === 'flow' ? 'flow' : 'quality';
+        const rows = getAggregatedRows();
+        const entry = rows[idx];
+        if (entry) appendSingleHistoryRow(entry, rowType);
+      } catch (_) { /* ignore malformed payload */ }
+      editor.focus({ preventScroll: true });
+      return;
+    }
+
     const token = event.dataTransfer.getData('text/plain');
+    const field = event.dataTransfer.getData('application/x-report-field');
     if (!token) return;
-    document.execCommand('insertText', false, `${token} `);
+    if (field === 'historyType' || token === 'HISTORY_BLOCK') {
+      appendHistoryRows();
+    }
+    editor.focus({ preventScroll: true });
+  });
+
+  document.addEventListener('dragend', () => {
+    editorDragDepth = 0;
+    editor.classList.remove('drop-target');
   });
 
   document.querySelectorAll('[data-cmd]').forEach((btn) => {
@@ -702,8 +884,14 @@
   });
 
   document.addEventListener('click', (event) => {
-    if (!event.target.closest('.device-picker') && deviceMenu) {
-      deviceMenu.classList.remove('show');
+    if (!event.target.closest('[data-popover-wrap]')) closeAllPopovers();
+    const clickedHistory = event.target.closest('[data-reports-history-wrap]');
+    const clickedWorkArea = event.target.closest('[data-reports-work-area]');
+    if (!clickedHistory && !clickedWorkArea) {
+      if (reportsHistoryPanel && reportsHistoryToggle) {
+        reportsHistoryPanel.classList.remove('show');
+        reportsHistoryToggle.setAttribute('aria-expanded', 'false');
+      }
     }
   });
 </script>

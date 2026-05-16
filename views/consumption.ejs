@@ -471,34 +471,21 @@
     <div class="topbar-action" data-popover-wrap>
       <div class="topbar-icon" data-popover-toggle="alerts">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="badge badge-indigo">6</span>
+        <span class="badge badge-indigo" data-etubig-alert-badge>0</span>
       </div>
       <div class="topbar-popover" data-popover-id="alerts">
         <div class="popover-title">Notifications</div>
-        <ul class="popover-list">
-          <li class="popover-item">
-            <strong>Flow Spike</strong>
-            <span>Zone C flow exceeded normal range at 09:40 AM.</span>
-          </li>
-          <li class="popover-item">
-            <strong>Usage Report</strong>
-            <span>Daily consumption summary is ready for review.</span>
-          </li>
-          <li class="popover-item">
-            <strong>Reminder</strong>
-            <span>Check pump runtime logs before 5:00 PM.</span>
-          </li>
-        </ul>
+        <ul class="popover-list" data-etubig-notifications></ul>
       </div>
     </div>
     <div class="topbar-action" data-popover-wrap>
       <div class="avatar" data-popover-toggle="admin">A</div>
       <div class="topbar-popover avatar-panel" data-popover-id="admin">
         <div class="avatar-head">
-          <div class="avatar-chip">A</div>
+          <div class="avatar-chip" data-etubig-user-chip>A</div>
           <div class="avatar-meta">
-            <strong>Admin User</strong>
-            <span>admin@etubig.local</span>
+            <strong data-etubig-user-name>Admin User</strong>
+            <span data-etubig-user-email>admin@etubig.local</span>
           </div>
         </div>
         <div class="avatar-actions">
@@ -582,48 +569,14 @@
   </div>
 </div>
 
+<%- include('partials/etubig-data') %>
+<script src="/js/etubig-ui.js"></script>
 <script>
   const months = ['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
 
-  /* ─ Main chart data ─ */
-  let mainData = {
-    '1h':  { labels: Array.from({length:12}, (_,i)=>`${i*5}m`),
-              d: [ Array.from({length:12}, (_,i)=>280+Math.sin(i*.5)*60+Math.random()*20) ] },
-    '5h':  { labels: Array.from({length:10}, (_,i)=>`${i*30}m`),
-              d: [ Array.from({length:10}, (_,i)=>300+Math.sin(i*.4)*70+Math.random()*25) ] },
-    '8h':  { labels: months.slice(0,8),
-              d: [ [290,310,350,380,400,420,460,500] ] },
-    '12h': { labels: months,
-              d: [ [270,290,320,360,400,410,430,470,510,490,540,580] ] },
-  };
-
-  /* ─ Comparison chart data ─ */
-  let compData = {
-    '10am': { labels: months,
-               d: [
-                 [200,220,240,260,300,310,330,360,400,390,420,450],
-                 [160,175,190,210,240,250,265,290,320,310,335,360],
-                 [120,130,140,155,175,180,195,210,235,225,245,260],
-               ] },
-    '12nn': { labels: months,
-               d: [
-                 [220,240,260,285,320,335,355,385,420,410,445,475],
-                 [175,192,208,228,260,272,290,315,345,332,360,385],
-                 [130,142,155,168,190,200,215,232,255,244,265,283],
-               ] },
-    '2pm':  { labels: months,
-               d: [
-                 [250,272,295,320,360,375,395,430,465,450,485,515],
-                 [195,215,235,258,292,305,325,354,385,370,400,428],
-                 [145,160,178,195,220,232,250,272,298,285,310,333],
-               ] },
-    '5pm':  { labels: months,
-               d: [
-                 [290,315,340,370,410,425,450,488,528,510,548,580],
-                 [225,248,272,298,335,350,375,408,444,428,462,492],
-                 [168,185,205,226,256,270,292,316,346,330,360,385],
-               ] },
-  };
+  const deviceProfiles = ETUBIG.deviceProfiles || [];
+  let mainData = deviceProfiles[0]?.mainData || {};
+  let compData = deviceProfiles[0]?.compData || {};
 
   const blue1 = { line:'#2d3ac8', fill:'rgba(45,58,200,0.10)' };
   const blue2 = { line:'#6b8cff', fill:'rgba(107,140,255,0.08)' };
@@ -635,56 +588,19 @@
   let currentMainPeriod = '1h';
   let currentCompPeriod = '10am';
 
-  const deviceProfiles = [
-    {
-      name: 'ESP-32 Main Tank',
-      topic: 'etubig/main-tank/status',
-      flowRate: 50,
-      peakUsage: '12 nn',
-      mainData,
-      compData
-    },
-    {
-      name: 'ESP-32 Zone C',
-      topic: 'etubig/zone-c/status',
-      flowRate: 58,
-      peakUsage: '2 pm',
-      mainData: {
-        '1h':  { labels: Array.from({length:12}, (_,i)=>`${i*5}m`), d: [ Array.from({length:12}, (_,i)=>330+Math.sin(i*.5)*62+Math.random()*24) ] },
-        '5h':  { labels: Array.from({length:10}, (_,i)=>`${i*30}m`), d: [ Array.from({length:10}, (_,i)=>350+Math.sin(i*.4)*78+Math.random()*28) ] },
-        '8h':  { labels: months.slice(0,8), d: [ [340,360,390,420,440,470,510,550] ] },
-        '12h': { labels: months, d: [ [320,340,370,410,440,460,490,530,565,550,590,630] ] },
-      },
-      compData: {
-        '10am': { labels: months, d: [[240,265,285,310,340,355,380,410,450,435,470,500],[190,205,225,248,280,290,310,335,370,355,380,410],[145,156,168,186,210,218,235,255,280,270,292,312]] },
-        '12nn': { labels: months, d: [[260,285,308,334,365,380,405,435,470,455,492,525],[205,223,245,270,305,318,338,365,395,380,410,438],[152,166,182,202,228,238,258,279,304,292,316,338]] },
-        '2pm':  { labels: months, d: [[285,310,336,364,398,415,440,472,510,495,532,565],[223,245,268,292,328,344,366,398,432,415,450,478],[166,183,202,222,250,264,286,310,340,325,352,375]] },
-        '5pm':  { labels: months, d: [[315,342,370,400,438,455,482,520,560,542,582,615],[248,272,298,326,364,382,408,442,478,462,498,530],[185,204,226,248,280,294,320,346,378,362,392,418]] },
-      }
-    },
-    {
-      name: 'ESP-8266 Pump House',
-      topic: 'etubig/pump-house/status',
-      flowRate: 43,
-      peakUsage: '10 am',
-      mainData: {
-        '1h':  { labels: Array.from({length:12}, (_,i)=>`${i*5}m`), d: [ Array.from({length:12}, (_,i)=>230+Math.sin(i*.5)*50+Math.random()*16) ] },
-        '5h':  { labels: Array.from({length:10}, (_,i)=>`${i*30}m`), d: [ Array.from({length:10}, (_,i)=>245+Math.sin(i*.4)*58+Math.random()*20) ] },
-        '8h':  { labels: months.slice(0,8), d: [ [240,255,280,300,325,340,370,395] ] },
-        '12h': { labels: months, d: [ [225,242,260,285,310,322,345,375,402,390,420,448] ] },
-      },
-      compData: {
-        '10am': { labels: months, d: [[172,190,205,226,255,265,282,305,338,327,352,374],[138,150,166,184,208,216,232,252,280,268,290,310],[102,112,122,136,154,160,173,188,208,198,215,230]] },
-        '12nn': { labels: months, d: [[185,205,220,243,272,283,300,324,356,346,372,395],[148,162,178,198,222,232,250,272,300,288,312,334],[110,122,132,146,166,174,188,205,226,216,234,250]] },
-        '2pm':  { labels: months, d: [[205,225,243,265,295,306,325,352,385,372,400,425],[164,180,196,218,245,256,276,300,330,318,344,368],[122,134,146,162,184,192,208,226,248,238,258,276]] },
-        '5pm':  { labels: months, d: [[228,248,266,292,322,336,356,385,418,402,430,455],[182,198,216,238,266,278,298,324,354,340,366,392],[135,148,162,180,204,214,230,250,274,262,282,302]] },
-      }
-    }
-  ];
-  let activeDevice = deviceProfiles[0];
+  let activeDevice = deviceProfiles[0] || { name: 'No device', topic: '', mainData: {}, compData: {}, flowRate: 0, peakUsage: '—' };
+
+  function normalizePeriod(d) {
+    if (!d) return { labels: [], d: [[]] };
+    return {
+      labels: d.labels || [],
+      d: d.d || d.datasets || [[]],
+    };
+  }
 
   function buildDatasets(d) {
-    return d.d.map((pts, i) => ({
+    const block = normalizePeriod(d);
+    return block.d.map((pts, i) => ({
       data: pts,
       borderColor: palette[i].line,
       backgroundColor: palette[i].fill,
@@ -702,15 +618,22 @@
     plugins: { legend: { display: false } },
     scales: {
       x: { grid: { display: false }, ticks: { color: '#9aa3af', font: { size: 11 } } },
-      y: { display: false },
+      y: {
+        display: true,
+        beginAtZero: true,
+        grid: { color: '#eef2f7' },
+        ticks: { color: '#9aa3af', font: { size: 11 }, precision: 0 },
+      },
     },
   };
 
   // Main chart
   const mainCtx = document.getElementById('mainChart').getContext('2d');
+  const mainStart = normalizePeriod(mainData['1h']);
+  const compStart = normalizePeriod(compData['10am']);
   const mainChart = new Chart(mainCtx, {
     type: 'line',
-    data: { labels: mainData['1h'].labels, datasets: buildDatasets(mainData['1h']) },
+    data: { labels: mainStart.labels, datasets: buildDatasets(mainStart) },
     options: commonOptions,
   });
 
@@ -718,7 +641,7 @@
   const compCtx = document.getElementById('compChart').getContext('2d');
   const compChart = new Chart(compCtx, {
     type: 'line',
-    data: { labels: compData['10am'].labels, datasets: buildDatasets(compData['10am']) },
+    data: { labels: compStart.labels, datasets: buildDatasets(compStart) },
     options: commonOptions,
   });
 
@@ -727,7 +650,8 @@
     btn.classList.add('active');
     if (chart === mainChart) currentMainPeriod = key;
     if (chart === compChart) currentCompPeriod = key;
-    const d = dataMap[key];
+    const d = normalizePeriod(dataMap[key]);
+    if (!d.labels.length && !d.d[0]?.length) return;
     chart.data.labels   = d.labels;
     chart.data.datasets = buildDatasets(d);
     chart.update();
@@ -741,8 +665,8 @@
     if (flowRateValueEl) flowRateValueEl.innerHTML = `${device.flowRate}<span class="stat-unit">L/min</span>`;
     if (peakUsageValueEl) peakUsageValueEl.textContent = device.peakUsage;
 
-    const mainSelected = mainData[currentMainPeriod] || mainData['1h'];
-    const compSelected = compData[currentCompPeriod] || compData['10am'];
+    const mainSelected = normalizePeriod(mainData[currentMainPeriod] || mainData['1h']);
+    const compSelected = normalizePeriod(compData[currentCompPeriod] || compData['10am']);
     mainChart.data.labels = mainSelected.labels;
     mainChart.data.datasets = buildDatasets(mainSelected);
     compChart.data.labels = compSelected.labels;
@@ -757,7 +681,14 @@
   }
   function selectDaily(period) {
     document.getElementById('dailyMenu').classList.remove('open');
-    // extend mainData with weekly/monthly/yearly as needed
+    const key = { weekly: 'weekly', monthly: 'monthly', yearly: 'yearly' }[period];
+    if (!key || !mainData[key]) return;
+    currentMainPeriod = key;
+    document.querySelectorAll('.chart-card .chart-header .period-btn').forEach((b) => b.classList.remove('active'));
+    const d = normalizePeriod(mainData[key]);
+    mainChart.data.labels = d.labels;
+    mainChart.data.datasets = buildDatasets(d);
+    mainChart.update();
   }
   document.addEventListener('click', e => {
     if (!e.target.closest('.daily-dropdown'))
